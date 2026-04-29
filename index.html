@@ -6,11 +6,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
   /* 웹 폰트 적용 */
-  @font-face {
-    font-family: 'Cafe24SsurroundAir';
-    src: url('https://gcore.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/Cafe24SsurroundAir.woff') format('woff');
-    font-weight: normal;
-    font-display: swap;
+  @font-face { 
+    font-family: 'yangjin'; 
+    src: url('https://cdn.jsdelivr.net/gh/supernovice-lab/font@0.9/yangjin.woff') format('woff'); 
+    font-weight: normal; 
+    font-style: normal; 
   }
 
   @font-face {
@@ -32,7 +32,7 @@
   .config-row input[type="text"] { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 8px; }
   .config-row input[type="color"] { width: 50px; height: 30px; border: none; cursor: pointer; }
 
-  textarea { width: 100%; height: 120px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; resize: vertical; box-sizing: border-box; margin-bottom: 10px; }
+  textarea { width: 100%; height: 250px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; resize: vertical; box-sizing: border-box; margin-bottom: 10px; line-height: 1.4; }
 
   .btn { width: 100%; background: #222; color: #fff; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 10px; font-size: 14px; }
   .btn:hover { background: #444; }
@@ -50,9 +50,9 @@
 
   .panel { background: var(--box-color); border-radius: 24px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
   
-  /* Cafe24SsurroundAir 폰트 적용 대상 */
+  /* 양진체 적용 대상 */
   .playlist-header, .song-title, .song-artist, .details-header {
-    font-family: 'Cafe24SsurroundAir', sans-serif;
+    font-family: 'yangjin', sans-serif;
   }
 
   .playlist-header { font-size: 1.3em; margin-bottom: 15px; word-break: keep-all; }
@@ -60,7 +60,6 @@
   .song-item { display: flex; align-items: center; background: rgba(255,255,255,0.7); border-radius: 14px; margin-bottom: 10px; padding: 12px; cursor: pointer; }
   .song-item.active { background: #fff; transform: scale(1.02); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
   
-  /* 재생 아이콘 배경색을 var(--text-color)로 변경하여 글자색과 동기화 */
   .play-icon { width: 30px; height: 30px; background: var(--text-color); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 10px; }
   
   .song-info { width: 100%; overflow: hidden; }
@@ -72,7 +71,7 @@
   .lyric-line { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 1em; color: #bbb; margin: 8px 0; transition: all 0.3s; z-index: 1; }
   .lyric-line.active-lyric { color: #ffffff; font-weight: bold; transform: scale(1.1); text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
   
-  /* Pretendard 폰트 적용 대상 */
+  /* Pretendard 적용 대상 */
   .desc-section { 
     font-family: 'Pretendard', sans-serif;
     font-weight: 200;
@@ -95,7 +94,24 @@
       <label>배경색</label><input type="color" id="box-color-input" value="#eef2f6">
     </div>
     
-    <textarea id="data-input" placeholder="AI 텍스트를 붙여넣으세요..."></textarea>
+    <textarea id="data-input" placeholder="형식이 다음과 같은지 확인 후 붙여넣기(곡과 곡 사이 구분선 --- 필수)
+곡명: 노래 제목
+아티스트: 가수 이름
+설명: 곡 설명
+가사:
+가사 1줄
+가사 2줄
+가사 3줄
+가사 4줄
+---
+곡명: 노래 제목
+아티스트: 가수 이름
+설명: 곡 설명
+가사:
+가사 1줄
+가사 2줄
+가사 3줄
+가사 4줄"></textarea>
     <button class="btn" onclick="parseTextAndShowUpload()">1단계: 데이터 인식</button>
     
     <div id="image-upload-section">
@@ -263,7 +279,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${title}</title>
 <style>
-  @font-face { font-family: 'Cafe24SsurroundAir'; src: url('https://gcore.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/Cafe24SsurroundAir.woff') format('woff'); font-weight: normal; font-display: swap; }
+  @font-face { font-family: 'yangjin'; src: url('https://cdn.jsdelivr.net/gh/supernovice-lab/font@0.9/yangjin.woff') format('woff'); font-weight: normal; font-style: normal; }
   @font-face { font-family: 'Pretendard'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-ExtraLight.woff2') format('woff2'); font-weight: 200; font-display: swap; }
   
   :root { --text-color: ${textColor}; --box-color: ${boxColor}; }
@@ -271,7 +287,7 @@
   .player-wrapper { display: flex; flex-direction: column; width: 100%; max-width: 400px; gap: 15px; }
   .panel { background: var(--box-color); border-radius: 24px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
   
-  .playlist-header, .song-title, .song-artist, .details-header { font-family: 'Cafe24SsurroundAir', sans-serif; }
+  .playlist-header, .song-title, .song-artist, .details-header { font-family: 'yangjin', sans-serif; }
   .playlist-header { font-size: 1.3em; margin-bottom: 15px; word-break: keep-all; }
   
   .song-list { list-style: none; padding: 0; margin: 0; }
