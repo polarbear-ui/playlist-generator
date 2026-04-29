@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f4f7f6; padding: 20px; }
+  
+  /* 데이터 입력 영역 */
+  .generator-section {
+    max-width: 800px;
+    margin: 0 auto 30px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  }
+
+  .generator-section textarea {
+    width: 100%;
+    height: 150px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    resize: vertical;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+  }
+
+  .generate-btn {
+    background: #222;
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+  }
+
+  .generate-btn:hover { background: #444; }
+
+  /* 플레이어 영역 */
+  .player-wrapper {
+    display: none; /* 초기에는 숨김 처리 */
+    gap: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .panel {
+    background: #eef2f6;
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  }
+
+  .playlist-panel { flex: 1; min-width: 300px; }
+  .playlist-header { font-size: 1.5em; font-weight: bold; color: #222; margin-bottom: 20px; }
+  .song-list { list-style: none; padding: 0; margin: 0; }
+  
+  .song-item {
+    display: flex; align-items: center; background: #fff; border-radius: 16px;
+    margin-bottom: 12px; padding: 16px; cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s;
+  }
+  .song-item:hover, .song-item.active { background: #f8f9fb; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+  .song-item.active { border: 2px solid #ff3366; }
+  
+  .play-icon {
+    width: 36px; height: 36px; background: #333; color: #fff; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; margin-right: 15px; font-size: 12px;
+  }
+  .song-info { flex: 1; }
+  .song-title { font-weight: bold; color: #222; margin-bottom: 4px; }
+  .song-artist { font-size: 0.85em; color: #888; }
+
+  .details-panel { flex: 1; min-width: 300px; display: flex; flex-direction: column; gap: 20px; }
+  .details-header { font-size: 1.2em; font-weight: bold; color: #333; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
+  
+  .lyrics-section { background: #fff; padding: 20px; border-radius: 16px; min-height: 150px; }
+  .lyric-line { font-size: 1em; color: #bbb; margin: 8px 0; transition: color 0.3s ease, transform 0.3s ease; }
+  .lyric-line.active-lyric { color: #ff3366; font-weight: bold; transform: scale(1.02); }
+  
+  .desc-section { background: #fff; padding: 20px; border-radius: 16px; font-size: 0.9em; color: #555; line-height: 1.6; flex-grow: 1; }
+
+  @media (max-width: 650px) {
+    .player-wrapper { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="generator-section">
+  <h3>AI 텍스트 입력란</h3>
+  <textarea id="data-input" placeholder="여기에 AI가 출력한 텍스트를 그대로 붙여넣으세요..."></textarea>
+  <button class="generate-btn" onclick="parseAndGenerate()">플레이리스트 생성</button>
+</div>
+
+<div class="player-wrapper" id="player-wrapper">
+  <div class="panel playlist-panel">
+    <div class="playlist-header">Your Playlist</div>
+    <ul class="song-list" id="playlist-container"></ul>
+  </div>
+
+  <div class="panel details-panel">
+    <div class="details-header" id="current-title">노래를 선택해주세요</div>
+    <div class="lyrics-section" id="lyrics-container">
+      <div style="color: #888; font-size: 0.9em;">가사가 여기에 표시됩니다.</div>
+    </div>
+    <div class="desc-section" id="desc-container">
+      노래에 대한 상세 설명이 이곳에 표시됩니다.
+    </div>
+  </div>
+</div>
+
+<script>
+  let songData = [];
+  let lyricTimer = null;
+
+  // 1. 텍스트 파싱 및 데이터 생성 로직
+  function parseAndGenerate() {
+    const rawText = document.getElementById('data-input').value;
+    if (!rawText.trim()) return alert("텍스트를 입력해주세요.");
+
+    // '---' 구분자를 기준으로 블록 나누기
+    const blocks = rawText.split(/---+/);
+    const parsedData = [];
+
+    blocks.forEach(block => {
+      const lines = block.trim().split('\n');
+      if (lines.length < 3) return; // 데이터가 부족한 블록 무시
+
+      const song = { title: '', artist: '', description: '', lyrics: [] };
+      let isParsingLyrics = false;
+
+      lines.forEach(line => {
+        const tLine = line.trim();
+        if (tLine.startsWith('곡명:')) {
+          song.title = tLine.replace('곡명:', '').trim();
+        } else if (tLine.startsWith('아티스트:')) {
+          song.artist = tLine.replace('아티스트:', '').trim();
+        } else if (tLine.startsWith('설명:')) {
+          song.description = tLine.replace('설명:', '').trim();
+        } else if (tLine.startsWith('가사:')) {
+          isParsingLyrics = true;
+        } else if (isParsingLyrics && tLine.length > 0) {
+          song.lyrics.push(tLine);
+        }
+      });
+
+      if (song.title) parsedData.push(song);
+    });
+
+    if (parsedData.length === 0) return alert("양식에 맞는 데이터가 없습니다. 텍스트 포맷을 확인하세요.");
+
+    songData = parsedData;
+    renderPlaylist();
+    
+    // 플레이어 UI 표시
+    document.getElementById('player-wrapper').style.display = 'flex';
+  }
+
+  // 2. 플레이리스트 렌더링
+  function renderPlaylist() {
+    const playlistContainer = document.getElementById('playlist-container');
+    playlistContainer.innerHTML = ''; // 기존 리스트 초기화
+
+    songData.forEach((song, index) => {
+      const li = document.createElement('li');
+      li.className = 'song-item';
+      li.innerHTML = `
+        <div class="play-icon">▶</div>
+        <div class="song-info">
+          <div class="song-title">${song.title}</div>
+          <div class="song-artist">${song.artist}</div>
+        </div>
+      `;
+      li.onclick = () => selectSong(index, li);
+      playlistContainer.appendChild(li);
+    });
+
+    // 렌더링 후 첫 번째 곡 자동 선택 (선택 사항)
+    if(songData.length > 0) {
+      selectSong(0, playlistContainer.firstChild);
+    }
+  }
+
+  // 3. 곡 선택 로직
+  function selectSong(index, element) {
+    document.querySelectorAll('.song-item').forEach(item => item.classList.remove('active'));
+    element.classList.add('active');
+
+    const song = songData[index];
+
+    document.getElementById('current-title').innerText = `${song.title} - ${song.artist}`;
+    document.getElementById('desc-container').innerText = song.description;
+
+    const lyricsContainer = document.getElementById('lyrics-container');
+    lyricsContainer.innerHTML = ''; 
+    
+    song.lyrics.forEach(line => {
+      const div = document.createElement('div');
+      div.className = 'lyric-line';
+      div.innerText = line;
+      lyricsContainer.appendChild(div);
+    });
+
+    startLyricAnimation(lyricsContainer);
+  }
+
+  // 4. 가사 순환 애니메이션
+  function startLyricAnimation(container) {
+    clearInterval(lyricTimer); 
+
+    const lyricLines = container.querySelectorAll('.lyric-line');
+    if (lyricLines.length === 0) return;
+
+    let currentIndex = 0;
+    lyricLines[0].classList.add('active-lyric');
+
+    lyricTimer = setInterval(() => {
+      lyricLines[currentIndex].classList.remove('active-lyric');
+      currentIndex = (currentIndex + 1) % lyricLines.length;
+      lyricLines[currentIndex].classList.add('active-lyric');
+    }, 2000); 
+  }
+</script>
+
+</body>
+</html>
