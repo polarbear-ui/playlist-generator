@@ -3,103 +3,96 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-  :root {
-    --text-color: #000000; 
-    --box-color: #eef2f6; 
-  }
+  :root { --text-color: #000000; --box-color: #eef2f6; }
 
-  body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f4f7f6; padding: 20px; color: var(--text-color); }
+  body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f4f7f6; padding: 20px; color: var(--text-color); margin: 0; }
   
-  .generator-section {
-    max-width: 500px; margin: 0 auto 30px auto; background: #fff;
-    padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); color: #333;
-  }
+  /* 좌우 분할 레이아웃 적용 */
+  .main-layout { display: flex; gap: 30px; max-width: 1000px; margin: 0 auto; align-items: flex-start; justify-content: center; }
 
+  /* 편집기 영역 */
+  .generator-section { flex: 1; max-width: 500px; background: #fff; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); color: #333; }
   .config-row { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
   .config-row label { font-size: 0.85em; font-weight: bold; }
+  .config-row input[type="text"] { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 8px; }
   .config-row input[type="color"] { width: 50px; height: 30px; border: none; cursor: pointer; }
 
-  .generator-section textarea {
-    width: 100%; height: 120px; padding: 15px; border: 1px solid #ddd;
-    border-radius: 8px; font-size: 14px; resize: vertical; box-sizing: border-box; margin-bottom: 10px;
-  }
+  textarea { width: 100%; height: 120px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; resize: vertical; box-sizing: border-box; margin-bottom: 10px; }
 
-  .btn {
-    width: 100%; background: #222; color: #fff; border: none;
-    padding: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 10px;
-  }
+  .btn { width: 100%; background: #222; color: #fff; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 10px; font-size: 14px; }
   .btn:hover { background: #444; }
+  .btn.export-btn { background: #4caf50; }
+  .btn.export-btn:hover { background: #45a049; }
+  .btn.export-img-btn { background: #2196F3; }
+  .btn.export-img-btn:hover { background: #1976D2; }
 
-  /* 이미지 첨부 영역 스타일 */
   #image-upload-section { display: none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px; }
   .upload-item { display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 0.9em; }
-  .upload-item input[type="file"] { font-size: 0.8em; }
+  
+  .export-actions { display: none; gap: 10px; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
 
-  /* 플레이어 레이아웃 */
-  .player-wrapper {
-    display: none; flex-direction: column; width: 100%; max-width: 400px; margin: 0 auto; gap: 15px;
-  }
+  /* 플레이어 영역 */
+  .player-wrapper { display: none; flex-direction: column; width: 100%; max-width: 400px; gap: 15px; }
 
   .panel { background: var(--box-color); border-radius: 24px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-  
-  .playlist-header { font-size: 1.3em; font-weight: bold; margin-bottom: 15px; }
+  .playlist-header { font-size: 1.3em; font-weight: bold; margin-bottom: 15px; word-break: keep-all; }
   .song-list { list-style: none; padding: 0; margin: 0; }
-  
-  .song-item {
-    display: flex; align-items: center; background: rgba(255,255,255,0.7); 
-    border-radius: 14px; margin-bottom: 10px; padding: 12px; cursor: pointer;
-  }
+  .song-item { display: flex; align-items: center; background: rgba(255,255,255,0.7); border-radius: 14px; margin-bottom: 10px; padding: 12px; cursor: pointer; }
   .song-item.active { background: #fff; transform: scale(1.02); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-  
   .play-icon { width: 30px; height: 30px; background: #333; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 10px; }
-  .song-title { font-weight: bold; font-size: 0.95em; }
+  .song-info { width: 100%; overflow: hidden; }
+  .song-title { font-weight: bold; font-size: 0.95em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .song-artist { font-size: 0.8em; opacity: 0.7; }
 
   .details-panel { display: flex; flex-direction: column; gap: 15px; }
-  
-  .lyrics-section { 
-    position: relative; border-radius: 14px; min-height: 180px; 
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-    text-align: center; overflow: hidden; background-size: cover; background-position: center;
-    box-shadow: inset 0 0 0 2000px rgba(0,0,0,0.5); 
-  }
-
+  .lyrics-section { position: relative; border-radius: 14px; min-height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; overflow: hidden; background-size: cover; background-position: center; box-shadow: inset 0 0 0 2000px rgba(0,0,0,0.5); }
   .lyric-line { font-size: 1em; color: #bbb; margin: 8px 0; transition: all 0.3s; z-index: 1; }
   .lyric-line.active-lyric { color: #ffffff; font-weight: bold; transform: scale(1.1); text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-  
   .desc-section { background: rgba(255,255,255,0.5); padding: 15px; border-radius: 14px; font-size: 0.85em; line-height: 1.6; }
+
+  @media (max-width: 800px) { .main-layout { flex-direction: column; align-items: center; } .generator-section { width: 100%; } }
 </style>
 </head>
 <body>
 
-<div class="generator-section" id="generator-ui">
-  <h3>디자인 및 데이터 설정</h3>
-  <div class="config-row">
-    <label>글자 색상</label><input type="color" id="text-color-input" value="#000000">
-    <label>박스 배경색</label><input type="color" id="box-color-input" value="#eef2f6">
-  </div>
-  
-  <textarea id="data-input" placeholder="AI 텍스트를 붙여넣으세요..."></textarea>
-  <button class="btn" onclick="parseTextAndShowUpload()">1단계: 곡 데이터 인식</button>
-  
-  <div id="image-upload-section">
-    <h4 style="margin: 0 0 10px 0;">배경 이미지 첨부 (선택)</h4>
-    <div id="upload-list-container"></div>
-    <button class="btn" style="margin-top:15px;" onclick="generateFinalPlaylist()">2단계: 플레이리스트 완성</button>
-  </div>
-</div>
+<div class="main-layout">
+  <div class="generator-section" id="generator-ui">
+    <h3>디자인 및 데이터 설정</h3>
+    <div class="config-row">
+      <label>제목</label><input type="text" id="title-input" placeholder="Your Playlist">
+    </div>
+    <div class="config-row">
+      <label>글자색</label><input type="color" id="text-color-input" value="#000000">
+      <label>배경색</label><input type="color" id="box-color-input" value="#eef2f6">
+    </div>
+    
+    <textarea id="data-input" placeholder="AI 텍스트를 붙여넣으세요..."></textarea>
+    <button class="btn" onclick="parseTextAndShowUpload()">1단계: 데이터 인식</button>
+    
+    <div id="image-upload-section">
+      <h4 style="margin: 0 0 10px 0;">배경 이미지 첨부 (선택)</h4>
+      <div id="upload-list-container"></div>
+      <button class="btn" style="margin-top:15px;" onclick="generateFinalPlaylist()">2단계: 플레이리스트 적용 (미리보기)</button>
+    </div>
 
-<div class="player-wrapper" id="player-wrapper">
-  <div class="panel">
-    <div class="playlist-header">Playlist</div>
-    <ul class="song-list" id="playlist-container"></ul>
+    <div class="export-actions" id="export-actions">
+      <button class="btn export-btn" onclick="exportHTML()">HTML 파일로 내보내기</button>
+      <button class="btn export-img-btn" onclick="exportImage()">이미지로 내보내기 (.png)</button>
+    </div>
   </div>
 
-  <div class="panel details-panel">
-    <div class="details-header" id="current-title" style="font-weight: bold; margin-bottom: 5px;"></div>
-    <div class="lyrics-section" id="lyrics-container"></div>
-    <div class="desc-section" id="desc-container"></div>
+  <div class="player-wrapper" id="player-wrapper">
+    <div class="panel">
+      <div class="playlist-header" id="display-title">Your Playlist</div>
+      <ul class="song-list" id="playlist-container"></ul>
+    </div>
+    <div class="panel details-panel">
+      <div class="details-header" id="current-title" style="font-weight: bold; margin-bottom: 5px;"></div>
+      <div class="lyrics-section" id="lyrics-container"></div>
+      <div class="desc-section" id="desc-container"></div>
+    </div>
   </div>
 </div>
 
@@ -107,7 +100,6 @@
   let songData = [];
   let lyricTimer = null;
 
-  // 1단계: 텍스트 파싱 및 파일 첨부 UI 생성
   function parseTextAndShowUpload() {
     const rawText = document.getElementById('data-input').value;
     if (!rawText.trim()) return alert("텍스트를 입력해주세요.");
@@ -133,38 +125,38 @@
     });
 
     if(parsedData.length === 0) return alert("데이터를 찾을 수 없습니다.");
-
     songData = parsedData;
 
-    // 이미지 첨부 UI 렌더링
     const uploadContainer = document.getElementById('upload-list-container');
     uploadContainer.innerHTML = '';
     songData.forEach((song, index) => {
       const div = document.createElement('div');
       div.className = 'upload-item';
-      div.innerHTML = `
-        <strong>${song.title}</strong>
-        <input type="file" accept="image/*" onchange="handleImageSelect(${index}, this)">
-      `;
+      div.innerHTML = `<strong>${song.title}</strong><input type="file" accept="image/*" onchange="handleImageSelect(${index}, this)">`;
       uploadContainer.appendChild(div);
     });
 
     document.getElementById('image-upload-section').style.display = 'block';
   }
 
-  // 로컬 파일 객체 URL 생성 및 데이터 매핑
   function handleImageSelect(index, inputElement) {
     const file = inputElement.files[0];
     if (file) {
-      songData[index].image = URL.createObjectURL(file); // 임시 이미지 URL 생성
+      // Base64 인코딩 (HTML 내보내기 시 이미지가 깨지지 않게 함)
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        songData[index].image = e.target.result;
+      };
+      reader.readAsDataURL(file);
     }
   }
 
-  // 2단계: 최종 플레이리스트 렌더링
   function generateFinalPlaylist() {
-    // 색상 변수 적용
+    const title = document.getElementById('title-input').value || "Your Playlist";
     const textColor = document.getElementById('text-color-input').value;
     const boxColor = document.getElementById('box-color-input').value;
+    
+    document.getElementById('display-title').innerText = title;
     document.documentElement.style.setProperty('--text-color', textColor);
     document.documentElement.style.setProperty('--box-color', boxColor);
 
@@ -178,9 +170,8 @@
       container.appendChild(li);
     });
 
-    // 입력기 숨기고 플레이어 표시
-    document.getElementById('generator-ui').style.display = 'none';
     document.getElementById('player-wrapper').style.display = 'flex';
+    document.getElementById('export-actions').style.display = 'flex';
 
     if(songData.length > 0) selectSong(0, container.firstChild);
   }
@@ -194,8 +185,6 @@
     document.getElementById('desc-container').innerText = song.description;
 
     const lyricsContainer = document.getElementById('lyrics-container');
-    
-    // 첨부된 이미지가 있으면 적용, 없으면 기본 어두운 회색
     if (song.image) {
       lyricsContainer.style.backgroundImage = `url('${song.image}')`;
     } else {
@@ -224,6 +213,128 @@
       idx = (idx + 1) % lines.length;
       lines[idx].classList.add('active-lyric');
     }, 2000);
+  }
+
+  /* --- 내보내기 기능 --- */
+  function exportImage() {
+    const target = document.getElementById('player-wrapper');
+    html2canvas(target, { backgroundColor: '#f4f7f6', scale: 2 }).then(canvas => {
+      const link = document.createElement('a');
+      link.download = 'playlist.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+  }
+
+  function exportHTML() {
+    const title = document.getElementById('title-input').value || "Your Playlist";
+    const textColor = document.getElementById('text-color-input').value;
+    const boxColor = document.getElementById('box-color-input').value;
+
+    // 독립적으로 동작하는 HTML 코드 조립
+    const htmlTemplate = `<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${title}</title>
+<style>
+  :root { --text-color: ${textColor}; --box-color: ${boxColor}; }
+  body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f4f7f6; color: var(--text-color); margin: 0; display: flex; justify-content: center; padding: 20px; }
+  .player-wrapper { display: flex; flex-direction: column; width: 100%; max-width: 400px; gap: 15px; }
+  .panel { background: var(--box-color); border-radius: 24px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+  .playlist-header { font-size: 1.3em; font-weight: bold; margin-bottom: 15px; word-break: keep-all; }
+  .song-list { list-style: none; padding: 0; margin: 0; }
+  .song-item { display: flex; align-items: center; background: rgba(255,255,255,0.7); border-radius: 14px; margin-bottom: 10px; padding: 12px; cursor: pointer; }
+  .song-item.active { background: #fff; transform: scale(1.02); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+  .play-icon { width: 30px; height: 30px; background: #333; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 10px; }
+  .song-info { width: 100%; overflow: hidden; }
+  .song-title { font-weight: bold; font-size: 0.95em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .song-artist { font-size: 0.8em; opacity: 0.7; }
+  .details-panel { display: flex; flex-direction: column; gap: 15px; }
+  .lyrics-section { position: relative; border-radius: 14px; min-height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; overflow: hidden; background-size: cover; background-position: center; box-shadow: inset 0 0 0 2000px rgba(0,0,0,0.5); }
+  .lyric-line { font-size: 1em; color: #bbb; margin: 8px 0; transition: all 0.3s; z-index: 1; }
+  .lyric-line.active-lyric { color: #ffffff; font-weight: bold; transform: scale(1.1); text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+  .desc-section { background: rgba(255,255,255,0.5); padding: 15px; border-radius: 14px; font-size: 0.85em; line-height: 1.6; }
+</style>
+</head>
+<body>
+  <div class="player-wrapper">
+    <div class="panel">
+      <div class="playlist-header">${title}</div>
+      <ul class="song-list" id="playlist-container"></ul>
+    </div>
+    <div class="panel details-panel">
+      <div class="details-header" id="current-title" style="font-weight: bold; margin-bottom: 5px;"></div>
+      <div class="lyrics-section" id="lyrics-container"></div>
+      <div class="desc-section" id="desc-container"></div>
+    </div>
+  </div>
+  <script>
+    const songData = ${JSON.stringify(songData)};
+    let lyricTimer = null;
+    
+    function init() {
+      const container = document.getElementById('playlist-container');
+      songData.forEach((song, index) => {
+        const li = document.createElement('li');
+        li.className = 'song-item';
+        li.innerHTML = '<div class="play-icon">▶</div><div class="song-info"><div class="song-title">' + song.title + '</div><div class="song-artist">' + song.artist + '</div></div>';
+        li.onclick = () => selectSong(index, li);
+        container.appendChild(li);
+      });
+      if(songData.length > 0) selectSong(0, container.firstChild);
+    }
+
+    function selectSong(index, element) {
+      document.querySelectorAll('.song-item').forEach(item => item.classList.remove('active'));
+      element.classList.add('active');
+      const song = songData[index];
+      document.getElementById('current-title').innerText = song.title + ' - ' + song.artist;
+      document.getElementById('desc-container').innerText = song.description;
+      const lyricsContainer = document.getElementById('lyrics-container');
+      
+      if (song.image) {
+        lyricsContainer.style.backgroundImage = "url('" + song.image + "')";
+      } else {
+        lyricsContainer.style.backgroundColor = "#333";
+        lyricsContainer.style.backgroundImage = "none";
+      }
+
+      lyricsContainer.innerHTML = '';
+      song.lyrics.forEach(line => {
+        const div = document.createElement('div');
+        div.className = 'lyric-line';
+        div.innerText = line;
+        lyricsContainer.appendChild(div);
+      });
+      startLyricAnimation(lyricsContainer);
+    }
+
+    function startLyricAnimation(container) {
+      clearInterval(lyricTimer);
+      const lines = container.querySelectorAll('.lyric-line');
+      if (lines.length === 0) return;
+      let idx = 0;
+      lines[0].classList.add('active-lyric');
+      lyricTimer = setInterval(() => {
+        lines[idx].classList.remove('active-lyric');
+        idx = (idx + 1) % lines.length;
+        lines[idx].classList.add('active-lyric');
+      }, 2000);
+    }
+
+    window.onload = init;
+  <\/script>
+</body>
+</html>`;
+
+    // 텍스트를 파일로 다운로드
+    const blob = new Blob([htmlTemplate], { type: "text/html;charset=utf-8" });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'my_playlist.html';
+    link.click();
   }
 </script>
 </body>
