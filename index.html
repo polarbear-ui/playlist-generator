@@ -4,11 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
+  /* 1. 포인트 컬러를 변수로 지정 (JS에서 변경 가능) */
+  :root {
+    --point-color: #ff3366; 
+  }
+
   body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f4f7f6; padding: 20px; }
   
-  /* 데이터 입력 영역 */
   .generator-section {
-    max-width: 800px;
+    max-width: 500px;
     margin: 0 auto 30px auto;
     background: #fff;
     padding: 20px;
@@ -16,102 +20,80 @@
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
   }
 
+  /* 커스텀 설정 입력창 스타일 */
+  .config-row { display: flex; gap: 10px; margin-bottom: 15px; }
+  .config-row input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
+  .config-row input[type="color"] { flex: 0.3; height: 40px; padding: 2px; cursor: pointer; }
+
   .generator-section textarea {
-    width: 100%;
-    height: 150px;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 14px;
-    resize: vertical;
-    box-sizing: border-box;
-    margin-bottom: 10px;
+    width: 100%; height: 120px; padding: 15px; border: 1px solid #ddd;
+    border-radius: 8px; font-size: 14px; resize: vertical; box-sizing: border-box; margin-bottom: 10px;
   }
 
   .generate-btn {
-    background: #222;
-    color: #fff;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background 0.2s;
+    width: 100%; background: #222; color: #fff; border: none;
+    padding: 14px; border-radius: 8px; cursor: pointer; font-weight: bold;
   }
 
-  .generate-btn:hover { background: #444; }
-
-  /* 플레이어 영역 */
+  /* 2. 플레이어 레이아웃: 모바일 비율로 고정 */
   .player-wrapper {
-    display: none; /* 초기에는 숨김 처리 */
-    gap: 20px;
-    max-width: 800px;
+    display: none;
+    flex-direction: column; /* 항상 위아래로 나열 */
+    width: 100%;
+    max-width: 400px; /* 휴대폰 너비로 고정 */
     margin: 0 auto;
+    gap: 15px;
   }
 
-  .panel {
-    background: #eef2f6;
-    border-radius: 24px;
-    padding: 24px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-  }
-
-  .playlist-panel { flex: 1; min-width: 300px; }
-  .playlist-header { font-size: 1.5em; font-weight: bold; color: #222; margin-bottom: 20px; }
+  .panel { background: #eef2f6; border-radius: 24px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+  .playlist-header { font-size: 1.3em; font-weight: bold; color: #222; margin-bottom: 15px; }
   .song-list { list-style: none; padding: 0; margin: 0; }
   
   .song-item {
-    display: flex; align-items: center; background: #fff; border-radius: 16px;
-    margin-bottom: 12px; padding: 16px; cursor: pointer;
-    transition: background 0.3s, box-shadow 0.3s;
+    display: flex; align-items: center; background: #fff; border-radius: 14px;
+    margin-bottom: 10px; padding: 12px; cursor: pointer; border: 2px solid transparent;
   }
-  .song-item:hover, .song-item.active { background: #f8f9fb; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-  .song-item.active { border: 2px solid #ff3366; }
+  .song-item.active { border: 2px solid var(--point-color); } /* 변수 사용 */
   
   .play-icon {
-    width: 36px; height: 36px; background: #333; color: #fff; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center; margin-right: 15px; font-size: 12px;
+    width: 30px; height: 30px; background: #333; color: #fff; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 10px;
   }
-  .song-info { flex: 1; }
-  .song-title { font-weight: bold; color: #222; margin-bottom: 4px; }
-  .song-artist { font-size: 0.85em; color: #888; }
+  .song-title { font-weight: bold; color: #222; font-size: 0.95em; }
+  .song-artist { font-size: 0.8em; color: #888; }
 
-  .details-panel { flex: 1; min-width: 300px; display: flex; flex-direction: column; gap: 20px; }
-  .details-header { font-size: 1.2em; font-weight: bold; color: #333; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
+  .details-panel { display: flex; flex-direction: column; gap: 15px; }
+  .details-header { font-size: 1.1em; font-weight: bold; color: #333; border-bottom: 2px solid #ddd; padding-bottom: 8px; }
   
-  .lyrics-section { background: #fff; padding: 20px; border-radius: 16px; min-height: 150px; }
-  .lyric-line { font-size: 1em; color: #bbb; margin: 8px 0; transition: color 0.3s ease, transform 0.3s ease; }
-  .lyric-line.active-lyric { color: #ff3366; font-weight: bold; transform: scale(1.02); }
+  .lyrics-section { background: #fff; padding: 15px; border-radius: 14px; min-height: 120px; text-align: center; }
+  .lyric-line { font-size: 0.95em; color: #bbb; margin: 6px 0; transition: all 0.3s; }
+  .lyric-line.active-lyric { color: var(--point-color); font-weight: bold; transform: scale(1.05); } /* 변수 사용 */
   
-  .desc-section { background: #fff; padding: 20px; border-radius: 16px; font-size: 0.9em; color: #555; line-height: 1.6; flex-grow: 1; }
-
-  @media (max-width: 650px) {
-    .player-wrapper { flex-direction: column; }
-  }
+  .desc-section { background: #fff; padding: 15px; border-radius: 14px; font-size: 0.85em; color: #555; line-height: 1.6; }
 </style>
 </head>
 <body>
 
 <div class="generator-section">
-  <h3>AI 텍스트 입력란</h3>
-  <textarea id="data-input" placeholder="여기에 AI가 출력한 텍스트를 그대로 붙여넣으세요..."></textarea>
-  <button class="generate-btn" onclick="parseAndGenerate()">플레이리스트 생성</button>
+  <h3>플레이리스트 설정</h3>
+  <div class="config-row">
+    <input type="text" id="title-input" placeholder="플레이리스트 제목 (예: My Mood)">
+    <input type="color" id="color-input" value="#ff3366" title="포인트 컬러 선택">
+  </div>
+  <textarea id="data-input" placeholder="AI가 출력한 텍스트 양식을 붙여넣으세요..."></textarea>
+  <button class="generate-btn" onclick="parseAndGenerate()">플레이리스트 생성 및 적용</button>
 </div>
 
 <div class="player-wrapper" id="player-wrapper">
-  <div class="panel playlist-panel">
-    <div class="playlist-header">Your Playlist</div>
+  <div class="panel">
+    <div class="playlist-header" id="display-title">Your Playlist</div>
     <ul class="song-list" id="playlist-container"></ul>
   </div>
 
   <div class="panel details-panel">
-    <div class="details-header" id="current-title">노래를 선택해주세요</div>
-    <div class="lyrics-section" id="lyrics-container">
-      <div style="color: #888; font-size: 0.9em;">가사가 여기에 표시됩니다.</div>
-    </div>
-    <div class="desc-section" id="desc-container">
-      노래에 대한 상세 설명이 이곳에 표시됩니다.
-    </div>
+    <div class="details-header" id="current-title">곡을 선택하세요</div>
+    <div class="lyrics-section" id="lyrics-container"></div>
+    <div class="desc-section" id="desc-container"></div>
   </div>
 </div>
 
@@ -119,114 +101,85 @@
   let songData = [];
   let lyricTimer = null;
 
-  // 1. 텍스트 파싱 및 데이터 생성 로직
   function parseAndGenerate() {
     const rawText = document.getElementById('data-input').value;
+    const customTitle = document.getElementById('title-input').value;
+    const customColor = document.getElementById('color-input').value;
+
     if (!rawText.trim()) return alert("텍스트를 입력해주세요.");
 
-    // '---' 구분자를 기준으로 블록 나누기
+    // 1. 커스텀 설정 적용
+    document.getElementById('display-title').innerText = customTitle || "Your Playlist";
+    document.documentElement.style.setProperty('--point-color', customColor); // CSS 변수 업데이트
+
+    // 2. 텍스트 파싱 (이전과 동일)
     const blocks = rawText.split(/---+/);
     const parsedData = [];
 
     blocks.forEach(block => {
       const lines = block.trim().split('\n');
-      if (lines.length < 3) return; // 데이터가 부족한 블록 무시
-
+      if (lines.length < 3) return;
       const song = { title: '', artist: '', description: '', lyrics: [] };
       let isParsingLyrics = false;
 
       lines.forEach(line => {
         const tLine = line.trim();
-        if (tLine.startsWith('곡명:')) {
-          song.title = tLine.replace('곡명:', '').trim();
-        } else if (tLine.startsWith('아티스트:')) {
-          song.artist = tLine.replace('아티스트:', '').trim();
-        } else if (tLine.startsWith('설명:')) {
-          song.description = tLine.replace('설명:', '').trim();
-        } else if (tLine.startsWith('가사:')) {
-          isParsingLyrics = true;
-        } else if (isParsingLyrics && tLine.length > 0) {
-          song.lyrics.push(tLine);
-        }
+        if (tLine.startsWith('곡명:')) song.title = tLine.replace('곡명:', '').trim();
+        else if (tLine.startsWith('아티스트:')) song.artist = tLine.replace('아티스트:', '').trim();
+        else if (tLine.startsWith('설명:')) song.description = tLine.replace('설명:', '').trim();
+        else if (tLine.startsWith('가사:')) isParsingLyrics = true;
+        else if (isParsingLyrics && tLine.length > 0) song.lyrics.push(tLine);
       });
-
       if (song.title) parsedData.push(song);
     });
 
-    if (parsedData.length === 0) return alert("양식에 맞는 데이터가 없습니다. 텍스트 포맷을 확인하세요.");
-
     songData = parsedData;
     renderPlaylist();
-    
-    // 플레이어 UI 표시
     document.getElementById('player-wrapper').style.display = 'flex';
   }
 
-  // 2. 플레이리스트 렌더링
   function renderPlaylist() {
-    const playlistContainer = document.getElementById('playlist-container');
-    playlistContainer.innerHTML = ''; // 기존 리스트 초기화
-
+    const container = document.getElementById('playlist-container');
+    container.innerHTML = '';
     songData.forEach((song, index) => {
       const li = document.createElement('li');
       li.className = 'song-item';
-      li.innerHTML = `
-        <div class="play-icon">▶</div>
-        <div class="song-info">
-          <div class="song-title">${song.title}</div>
-          <div class="song-artist">${song.artist}</div>
-        </div>
-      `;
+      li.innerHTML = `<div class="play-icon">▶</div><div class="song-info"><div class="song-title">${song.title}</div><div class="song-artist">${song.artist}</div></div>`;
       li.onclick = () => selectSong(index, li);
-      playlistContainer.appendChild(li);
+      container.appendChild(li);
     });
-
-    // 렌더링 후 첫 번째 곡 자동 선택 (선택 사항)
-    if(songData.length > 0) {
-      selectSong(0, playlistContainer.firstChild);
-    }
+    if(songData.length > 0) selectSong(0, container.firstChild);
   }
 
-  // 3. 곡 선택 로직
   function selectSong(index, element) {
     document.querySelectorAll('.song-item').forEach(item => item.classList.remove('active'));
     element.classList.add('active');
-
     const song = songData[index];
-
     document.getElementById('current-title').innerText = `${song.title} - ${song.artist}`;
     document.getElementById('desc-container').innerText = song.description;
-
     const lyricsContainer = document.getElementById('lyrics-container');
-    lyricsContainer.innerHTML = ''; 
-    
+    lyricsContainer.innerHTML = '';
     song.lyrics.forEach(line => {
       const div = document.createElement('div');
       div.className = 'lyric-line';
       div.innerText = line;
       lyricsContainer.appendChild(div);
     });
-
     startLyricAnimation(lyricsContainer);
   }
 
-  // 4. 가사 순환 애니메이션
   function startLyricAnimation(container) {
-    clearInterval(lyricTimer); 
-
-    const lyricLines = container.querySelectorAll('.lyric-line');
-    if (lyricLines.length === 0) return;
-
-    let currentIndex = 0;
-    lyricLines[0].classList.add('active-lyric');
-
+    clearInterval(lyricTimer);
+    const lines = container.querySelectorAll('.lyric-line');
+    if (lines.length === 0) return;
+    let idx = 0;
+    lines[0].classList.add('active-lyric');
     lyricTimer = setInterval(() => {
-      lyricLines[currentIndex].classList.remove('active-lyric');
-      currentIndex = (currentIndex + 1) % lyricLines.length;
-      lyricLines[currentIndex].classList.add('active-lyric');
-    }, 2000); 
+      lines[idx].classList.remove('active-lyric');
+      idx = (idx + 1) % lines.length;
+      lines[idx].classList.add('active-lyric');
+    }, 2000);
   }
 </script>
-
 </body>
 </html>
