@@ -118,6 +118,19 @@
     .phone-screen { width: 100%; max-width: 350px; height: auto; min-height: 700px; border-radius: 35px; }
     .status-bar { display: none; }
   }
+  /* 모바일 색상 선택기 픽스 (확인 버튼 증발 방지) */
+  .color-picker-wrap { display: flex; gap: 20px; }
+  .color-box { display: flex; align-items: center; gap: 8px; }
+  .color-box label { width: auto; margin: 0; }
+  .color-box input[type="color"] { width: 40px; height: 40px; padding: 0; border: none; background: transparent; cursor: pointer; }
+  .color-box input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+  .color-box input[type="color"]::-webkit-color-swatch { border: 1px solid #ccc; border-radius: 6px; }
+
+  /* 모바일 캡처 시 강제 듀얼 레이아웃(PC화면) 유지 픽스 */
+  .is-capturing #capture-area { width: 850px !important; max-width: none !important; padding: 60px 40px !important; }
+  .is-capturing .mockup-wrapper { flex-wrap: nowrap !important; }
+  .is-capturing .phone-screen { width: 350px !important; max-width: 350px !important; min-height: 750px !important; border-radius: 45px !important; }
+  .is-capturing .status-bar { display: flex !important; }
 </style>
 </head>
 <body>
@@ -128,8 +141,9 @@
     <label>타이틀</label><input type="text" id="title-in" value="Favorites">
   </div>
   <div class="config-row">
-    <label>글자색</label><input type="color" id="t-color" value="#222222">
-    <label>배경색</label><input type="color" id="b-color" value="#f8f9fa">
+    <div class="config-row color-picker-wrap">
+    <div class="color-box"><label>글자색</label><input type="color" id="t-color" value="#222222"></div>
+    <div class="color-box"><label>배경색</label><input type="color" id="b-color" value="#f8f9fa"></div>
   </div>
   <textarea id="data-in" placeholder="곡명: 노래 제목&#13;&#10;아티스트: 가수 이름&#13;&#10;설명: 곡 설명&#13;&#10;가사:&#13;&#10;가사 한줄씩 입력&#13;&#10;---"></textarea>
   <button class="btn" style="width:100%" onclick="initStep1()">본문 저장</button>
@@ -315,25 +329,30 @@
     const target = document.getElementById('capture-area');
     window.scrollTo(0, 0); 
 
+    // 💡 모바일 캡처 시 강제로 PC(듀얼) 레이아웃으로 변경하는 클래스 추가
+    document.body.classList.add('is-capturing');
+
     try {
-      // 캡처 시 하이라이트가 번지지 않도록 일시정지
       clearInterval(timer);
+      
+      // 브라우저가 PC 레이아웃으로 변신할 시간을 아주 짧게(0.1초) 줍니다
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       const dataUrl = await htmlToImage.toPng(target, {
-        quality: 1.0,
-        backgroundColor: '#ffffff',
-        pixelRatio: 2 
+        quality: 1.0, backgroundColor: '#ffffff', pixelRatio: 2 
       });
       
       const link = document.createElement('a');
-      link.download = 'playlist-original-design.png';
+      link.download = 'playlist_dual_screen.png';
       link.href = dataUrl;
       link.click();
       
-      // 캡처 후 다시 애니메이션 시작
+      // 💡 캡처 완료 후 원래 모바일 화면으로 감쪽같이 복구
+      document.body.classList.remove('is-capturing');
       renderPreview();
     } catch (error) {
       alert('이미지 생성 중 오류가 발생했습니다.');
+      document.body.classList.remove('is-capturing');
       console.error(error);
     }
   }
