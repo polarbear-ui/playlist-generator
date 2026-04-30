@@ -311,6 +311,20 @@
     html2canvas(target, { backgroundColor: null, scale: 3 }).then(canvas => {
       const imgData = canvas.toDataURL('image/png');
       const modal = document.createElement('div');
+
+      // 팝업창의 전체적인 레이아웃 스타일 (검은 반투명 배경 및 중앙 정렬)
+      modal.style.position = 'fixed';
+      modal.style.top = '0';
+      modal.style.left = '0';
+      modal.style.width = '100vw';
+      modal.style.height = '100vh';
+      modal.style.backgroundColor = 'rgba(0,0,0,0.9)';
+      modal.style.display = 'flex';
+      modal.style.flexDirection = 'column';
+      modal.style.alignItems = 'center';
+      modal.style.justifyContent = 'center';
+      modal.style.zIndex = '9999';
+      
       modal.innerHTML = `
         <div style="color:#fff;margin-bottom:20px;font-weight:bold;">이미지를 길게 눌러 기기에 저장하세요</div>
         <img src="${imgData}" style="max-width:90%;max-height:75%;border-radius:20px;box-shadow:0 20px 50px rgba(0,0,0,0.5);">
