@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>모바일 듀얼스크린 플레이리스트</title>
+<title>모바일 듀얼스크린 플레이리스트 (직접 삽입용)</title>
 <style>
   /* 프리텐다드 서체 통합 */
   @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
@@ -29,78 +29,93 @@
   #image-upload-section { display: none; margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; }
   .upload-item { display: flex; justify-content: space-between; align-items: center; background: #f4f4f5; padding: 12px; border-radius: 10px; margin-bottom: 8px; font-size: 0.9em; font-weight: 500;}
 
-  /* --- 듀얼 폰 모크업 레이아웃 --- */
-  .mockup-wrapper { display: none; justify-content: center; gap: 30px; flex-wrap: wrap; max-width: 1000px; margin: 0 auto; }
-  .mockup-wrapper * { box-sizing: border-box; letter-spacing: -0.02em; margin: 0; padding: 0; }
+  /* 
+   ========================================================================
+   여기서부터 아래까지의 CSS는 티스토리로 복사될 때도 적용됩니다.
+   티스토리 기본 CSS의 간섭을 막기 위해 중요한 속성들에 !important를 추가했습니다.
+   ========================================================================
+  */
 
-  /* 폰 공통 스타일 */
-  .phone-screen { 
-    width: 350px; height: 750px; 
-    border-radius: 45px; 
-    box-shadow: 0 25px 60px rgba(0,0,0,0.15), inset 0 0 0 8px #fff; 
-    padding: 60px 20px 30px 20px; 
-    display: flex; flex-direction: column;
-    position: relative; overflow: hidden;
+  .mockup-wrapper-export { 
+    display: flex !important; justify-content: center !important; gap: 30px !important; 
+    flex-wrap: wrap !important; max-width: 800px !important; margin: 0 auto !important; 
+    padding: 20px 0 !important; background: transparent !important;
+  }
+  .mockup-wrapper-export * { 
+    box-sizing: border-box !important; letter-spacing: -0.02em !important; margin: 0 !important; padding: 0 !important;
+    font-family: 'Pretendard', sans-serif !important; 
   }
 
-  .status-bar { position: absolute; top: 18px; left: 30px; right: 30px; display: flex; justify-content: space-between; align-items: center; z-index: 10; font-size: 12px; font-weight: 700; pointer-events: none; }
-  .status-battery { font-size: 10px; font-weight: 400; opacity: 0.8; }
+  .phone-screen-export { 
+    width: 350px !important; height: 750px !important; 
+    border-radius: 45px !important; 
+    box-shadow: 0 25px 60px rgba(0,0,0,0.15), inset 0 0 0 8px #fff !important; 
+    padding: 60px 20px 30px 20px !important; 
+    display: flex !important; flex-direction: column !important;
+    position: relative !important; overflow: hidden !important;
+    border: none !important; /* 티스토리 테이블 선 방지 */
+  }
 
-  /* --- 왼쪽 폰 (플레이리스트) --- */
-  .playlist-header { font-size: 1.2em; font-weight: 800; text-align: center; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 0.05em; }
-  .song-list { list-style: none; overflow-y: auto; flex: 1; padding-bottom: 20px; }
-  .song-list::-webkit-scrollbar { display: none; }
-  
-  .song-item { display: flex; align-items: center; padding: 12px 10px; margin-bottom: 5px; cursor: pointer; transition: 0.2s; border-radius: 16px; }
-  .song-item:hover, .song-item.active { background: rgba(0,0,0,0.05); }
-  
-  .song-thumb { width: 48px; height: 48px; border-radius: 50%; background-color: #ddd; background-size: cover; background-position: center; margin-right: 15px; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-  
-  .song-info { flex: 1; overflow: hidden; }
-  .song-title { font-size: 1.05em; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; }
-  .song-artist { font-size: 0.85em; font-weight: 400; opacity: 0.5; }
-  .more-icon { opacity: 0.3; margin-left: 10px; }
+  /* 상태바 페이크 디자인 */
+  .status-bar-export { position: absolute !important; top: 18px !important; left: 30px !important; right: 30px !important; display: flex !important; justify-content: space-between !important; align-items: center !important; z-index: 10 !important; font-size: 12px !important; font-weight: 700 !important; pointer-events: none !important; }
+  .status-battery-export { font-size: 10px !important; font-weight: 400 !important; opacity: 0.8 !important; }
 
-  /* --- 오른쪽 폰 (상세창) --- */
-  .detail-top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 10px; }
-  .back-btn { font-weight: 800; font-size: 1.2em; cursor: pointer; }
-  .now-playing-title { font-size: 0.9em; font-weight: 600; opacity: 0.5; text-transform: uppercase; }
+  /* --- 왼쪽 폰 --- */
+  .playlist-header-export { font-size: 1.2em !important; font-weight: 800 !important; text-align: center !important; margin-bottom: 25px !important; text-transform: uppercase !important; letter-spacing: 0.05em !important; }
+  .song-list-export { list-style: none !important; overflow-y: auto !important; flex: 1 !important; padding-bottom: 20px !important; }
+  .song-list-export::-webkit-scrollbar { display: none !important; }
+  
+  .song-item-export { display: flex !important; align-items: center !important; padding: 12px 10px !important; margin-bottom: 5px !important; cursor: pointer !important; transition: 0.2s !important; border-radius: 16px !important; }
+  .song-item-export.active-export { background: rgba(0,0,0,0.05) !important; }
+  
+  .song-thumb-export { width: 48px !important; height: 48px !important; border-radius: 50% !important; background-color: #ddd !important; background-size: cover !important; background-position: center !important; margin-right: 15px !important; flex-shrink: 0 !important; box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important; }
+  
+  .song-info-export { flex: 1 !important; overflow: hidden !important; text-align: left !important; }
+  .song-title-export { font-size: 1.05em !important; font-weight: 700 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; margin-bottom: 3px !important; }
+  .song-artist-export { font-size: 0.85em !important; font-weight: 400 !important; opacity: 0.5 !important; }
+  .more-icon-export { opacity: 0.3 !important; margin-left: 10px !important; flex-shrink: 0 !important;}
 
-  .lyrics-section { 
-    flex: none; height: 240px; width: 100%;
-    position: relative; border-radius: 20px; 
-    display: flex; flex-direction: column; justify-content: center; align-items: center; 
-    text-align: center; overflow: hidden; background-size: cover; background-position: center; 
-    background-color: #333; padding: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+  /* --- 오른쪽 폰 --- */
+  .detail-top-bar-export { display: flex !important; justify-content: space-between !important; align-items: center !important; margin-bottom: 20px !important; padding: 0 10px !important; }
+  .back-btn-export { font-weight: 800 !important; font-size: 1.2em !important; cursor: pointer !important; }
+  .now-playing-title-export { font-size: 0.9em !important; font-weight: 600 !important; opacity: 0.5 !important; text-transform: uppercase !important; }
+
+  .lyrics-section-export { 
+    flex: none !important; height: 240px !important; width: 100% !important;
+    position: relative !important; border-radius: 20px !important; 
+    display: flex !important; flex-direction: column !important; justify-content: center !important; align-items: center !important; 
+    text-align: center !important; overflow: hidden !important; background-size: cover !important; background-position: center !important; 
+    background-color: #333 !important; padding: 20px !important; box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important;
   }
   
-  .lyrics-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.55); z-index: 0; }
+  .lyrics-overlay-export { position: absolute !important; inset: 0 !important; background: rgba(0,0,0,0.55) !important; z-index: 0 !important; }
 
-  .lyric-line { position: relative; z-index: 1; font-size: 1.05em; font-weight: 500; color: rgba(255,255,255,0.4); margin: 7px 0; transition: all 0.4s ease; word-break: keep-all; }
-  .lyric-line.active-lyric { color: #ffffff; font-weight: 800; transform: scale(1.1); text-shadow: 0 0 15px rgba(255,255,255,0.3); }
+  .lyric-line-export { position: relative !important; z-index: 1 !important; font-size: 1.05em !important; font-weight: 500 !important; color: rgba(255,255,255,0.4) !important; margin: 7px 0 !important; transition: all 0.4s ease !important; word-break: keep-all !important; }
+  .lyric-line-export.active-lyric-export { color: #ffffff !important; font-weight: 800 !important; transform: scale(1.1) !important; text-shadow: 0 0 15px rgba(255,255,255,0.3) !important; }
   
-  .player-controls { margin-top: 25px; display: flex; flex-direction: column; gap: 15px; padding: 0 10px; }
+  .player-controls-export { margin-top: 25px !important; display: flex !important; flex-direction: column !important; gap: 15px !important; padding: 0 10px !important; }
   
-  .track-info-left { text-align: left; }
-  #detail-title { font-size: 1.3em; font-weight: 800; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  #detail-artist { font-size: 0.95em; font-weight: 400; opacity: 0.5; }
+  .track-info-left-export { text-align: left !important; }
+  .detail-title-export { font-size: 1.3em !important; font-weight: 800 !important; margin-bottom: 3px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+  .detail-artist-export { font-size: 0.95em !important; font-weight: 400 !important; opacity: 0.5 !important; }
 
-  .progress-row { display: flex; align-items: center; gap: 10px; }
-  .time-text { font-size: 0.75em; font-weight: 500; opacity: 0.5; font-variant-numeric: tabular-nums; }
-  .progress-bar-bg { flex: 1; height: 5px; background: rgba(0,0,0,0.1); border-radius: 3px; overflow: hidden; }
-  .progress-fill { width: 35%; height: 100%; border-radius: 3px; }
+  .progress-row-export { display: flex !important; align-items: center !important; gap: 10px !important; }
+  .time-text-export { font-size: 0.75em !important; font-weight: 500 !important; opacity: 0.5 !important; font-variant-numeric: tabular-nums !important; }
+  .progress-bar-bg-export { flex: 1 !important; height: 5px !important; background: rgba(0,0,0,0.1) !important; border-radius: 3px !important; overflow: hidden !important; }
+  .progress-fill-export { width: 35% !important; height: 100% !important; border-radius: 3px !important; }
 
-  .control-buttons { display: flex; justify-content: center; align-items: center; gap: 35px; margin-top: 5px; }
-  .control-icon { width: 30px; height: 30px; cursor: pointer; }
-  .play-pause-icon { width: 40px; height: 40px; }
+  .control-buttons-export { display: flex !important; justify-content: center !important; align-items: center !important; gap: 35px !important; margin-top: 5px !important; }
+  .control-icon-export { width: 30px !important; height: 30px !important; cursor: pointer !important; }
+  .play-pause-icon-export { width: 40px !important; height: 40px !important; }
 
-  .desc-section { 
-    flex: 1; overflow-y: auto; font-size: 0.9em; font-weight: 300; background: rgba(0,0,0,0.03); 
-    padding: 20px; border-radius: 20px; line-height: 1.6; text-align: center; 
-    margin-top: 20px; word-break: keep-all; 
+  .desc-section-export { 
+    flex: 1 !important; overflow-y: auto !important; font-size: 0.9em !important; font-weight: 300 !important; background: rgba(0,0,0,0.03) !important; 
+    padding: 20px !important; border-radius: 20px !important; line-height: 1.6 !important; text-align: center !important; 
+    margin-top: 20px !important; word-break: keep-all !important; 
   }
-  .desc-section::-webkit-scrollbar { width: 5px; }
-  .desc-section::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
+  .desc-section-export::-webkit-scrollbar { width: 5px !important; }
+  .desc-section-export::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15) !important; border-radius: 10px !important; }
+
 </style>
 </head>
 <body>
@@ -116,65 +131,67 @@
   </div>
   
   <textarea id="data-input" placeholder="곡명: 노래 제목&#13;&#10;아티스트: 가수 이름&#13;&#10;설명: 곡 설명&#13;&#10;가사:&#13;&#10;가사 1줄&#13;&#10;가사 2줄&#13;&#10;---&#13;&#10;(곡 구분선 필수)"></textarea>
-  <button class="btn" style="width:100%; margin-bottom:10px;" onclick="parseTextAndShowUpload()">본문 편집</button>
+  <button class="btn" style="width:100%; margin-bottom:10px;" onclick="parseTextAndShowUpload()">본문 저장</button>
   
   <div id="image-upload-section">
     <h4 style="margin: 0 0 15px 0;">배경/앨범아트 이미지 첨부</h4>
     <div id="upload-list-container"></div>
     <div class="btn-group" style="margin-top:20px;">
       <button class="btn" onclick="generateFinalPlaylist()">결과물 확인</button>
-      <button class="btn export-btn" onclick="copyHTML()">html 복사</button>
+      <button class="btn export-btn" onclick="copyHTML()">html 복사 (직접 삽입)</button>
     </div>
   </div>
 </div>
 
-<div class="mockup-wrapper" id="player-wrapper">
+<!-- 실제 화면에 보이는 편집기용 래퍼 -->
+<div class="mockup-wrapper mockup-wrapper-export" id="player-wrapper">
   
-  <style id="dynamic-styles"></style>
+  <!-- 색상 동적 주입을 위한 인라인 스타일 설정 (복사 시 같이 포함됨) -->
+  <style id="dynamic-styles-export"></style>
 
   <!-- 왼쪽 폰 -->
-  <div class="phone-screen">
-    <div class="status-bar"><span>9:41</span><span class="status-battery">📶 100% 🔋</span></div>
-    <div class="playlist-header" id="display-title">Favorites</div>
-    <ul class="song-list" id="playlist-container"></ul>
+  <div class="phone-screen phone-screen-export" id="left-phone">
+    <div class="status-bar-export"><span>9:41</span><span class="status-battery-export">📶 100% 🔋</span></div>
+    <div class="playlist-header-export" id="display-title">Favorites</div>
+    <ul class="song-list-export" id="playlist-container"></ul>
   </div>
 
   <!-- 오른쪽 폰 -->
-  <div class="phone-screen">
-    <div class="status-bar"><span>9:41</span><span class="status-battery">📶 100% 🔋</span></div>
-    <div class="detail-top-bar">
-      <div class="back-btn">〈</div>
-      <div class="now-playing-title">Now Playing</div>
-      <div class="more-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div>
+  <div class="phone-screen phone-screen-export" id="right-phone">
+    <div class="status-bar-export"><span>9:41</span><span class="status-battery-export">📶 100% 🔋</span></div>
+    <div class="detail-top-bar-export">
+      <div class="back-btn-export">〈</div>
+      <div class="now-playing-title-export">Now Playing</div>
+      <div class="more-icon-export"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div>
     </div>
     
-    <div class="lyrics-section" id="lyrics-container">
-       <div class="lyrics-overlay"></div>
+    <div class="lyrics-section-export" id="lyrics-container">
+       <div class="lyrics-overlay-export"></div>
        <div id="lyrics-lines-wrapper" style="position:relative; z-index:1;"></div>
     </div>
 
-    <div class="player-controls">
-      <div class="track-info-left">
-        <div id="detail-title"></div>
-        <div id="detail-artist"></div>
+    <div class="player-controls-export">
+      <div class="track-info-left-export">
+        <div class="detail-title-export" id="detail-title"></div>
+        <div class="detail-artist-export" id="detail-artist"></div>
       </div>
-      <div class="progress-row">
-        <span class="time-text">1:24</span>
-        <div class="progress-bar-bg"><div class="progress-fill"></div></div>
-        <span class="time-text">-2:31</span>
+      <div class="progress-row-export">
+        <span class="time-text-export">1:24</span>
+        <div class="progress-bar-bg-export"><div class="progress-fill-export" id="progress-fill"></div></div>
+        <span class="time-text-export">-2:31</span>
       </div>
-      <div class="control-buttons">
-        <svg class="control-icon" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
-        <svg class="control-icon play-pause-icon" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-        <svg class="control-icon" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+      <div class="control-buttons-export">
+        <svg class="control-icon-export" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+        <svg class="control-icon-export play-pause-icon-export" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        <svg class="control-icon-export" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
       </div>
     </div>
-    <div class="desc-section" id="desc-container"></div>
+    <div class="desc-section-export" id="desc-container"></div>
   </div>
 
 </div>
 
-<!-- 보이지 않는 텍스트 영역 (복사용) -->
+<!-- 보이지 않는 복사용 텍스트 공간 -->
 <textarea id="hidden-copy-area" style="position: absolute; left: -9999px;"></textarea>
 
 <script>
@@ -230,25 +247,26 @@
     
     document.getElementById('display-title').innerText = title;
     
-    document.getElementById('dynamic-styles').innerHTML = `
-      #player-wrapper .phone-screen { background-color: ${boxColor}; color: ${textColor}; }
-      #player-wrapper .progress-fill { background-color: ${textColor}; }
-      #player-wrapper .control-icon { fill: ${textColor}; }
+    // 복사될 때 스타일을 유지하기 위해 style 태그 내부에 직접 주입
+    document.getElementById('dynamic-styles-export').innerHTML = `
+      .phone-screen-export { background-color: ${boxColor} !important; color: ${textColor} !important; }
+      .progress-fill-export { background-color: ${textColor} !important; }
+      .control-icon-export { fill: ${textColor} !important; }
     `;
 
     const container = document.getElementById('playlist-container');
     container.innerHTML = '';
     songData.forEach((song, index) => {
       const li = document.createElement('li');
-      li.className = 'song-item';
+      li.className = 'song-item-export';
       const bgStyle = song.image ? `background-image: url('${song.image}');` : '';
       li.innerHTML = `
-        <div class="song-thumb" style="${bgStyle}"></div>
-        <div class="song-info">
-          <div class="song-title">${song.title}</div>
-          <div class="song-artist">${song.artist}</div>
+        <div class="song-thumb-export" style="${bgStyle}"></div>
+        <div class="song-info-export">
+          <div class="song-title-export">${song.title}</div>
+          <div class="song-artist-export">${song.artist}</div>
         </div>
-        <div class="more-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div>
+        <div class="more-icon-export"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div>
       `;
       li.onclick = () => selectSong(index, li);
       container.appendChild(li);
@@ -258,8 +276,8 @@
   }
 
   function selectSong(index, element) {
-    document.querySelectorAll('.song-item').forEach(item => item.classList.remove('active'));
-    element.classList.add('active');
+    document.querySelectorAll('.song-item-export').forEach(item => item.classList.remove('active-export'));
+    element.classList.add('active-export');
     const song = songData[index];
     
     document.getElementById('detail-title').innerText = song.title;
@@ -275,7 +293,7 @@
     lw.innerHTML = '';
     song.lyrics.forEach(l => {
       const div = document.createElement('div');
-      div.className = 'lyric-line';
+      div.className = 'lyric-line-export';
       div.innerText = l;
       lw.appendChild(div);
     });
@@ -284,36 +302,99 @@
 
   function startLyricAnimation(c) {
     clearInterval(lyricTimer);
-    const n = c.querySelectorAll('.lyric-line');
+    const n = c.querySelectorAll('.lyric-line-export');
     if (n.length === 0) return;
-    let x = 0; n[0].classList.add('active-lyric');
+    let x = 0; n[0].classList.add('active-lyric-export');
     lyricTimer = setInterval(() => {
-      n[x].classList.remove('active-lyric');
+      n[x].classList.remove('active-lyric-export');
       x = (x + 1) % n.length;
-      n[x].classList.add('active-lyric');
+      n[x].classList.add('active-lyric-export');
     }, 2000);
   }
 
-  // 💡 수정됨: 전통적이고 안정적인 복사 방식으로 변경
+  // 💡 직관적인 순수 HTML/CSS 텍스트 복사 방식
   function copyHTML() {
-    const title = document.getElementById('title-input').value || "Favorites";
-    const tCol = document.getElementById('text-color-input').value;
-    const bCol = document.getElementById('box-color-input').value;
     
-    // HTML 템플릿의 < / script > 닫는 태그를 분리하여 브라우저 파싱 에러 방지
-    const template = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><style>@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');body{font-family:'Pretendard',sans-serif;background:transparent;margin:0;padding:20px 0;display:flex;justify-content:center}.mockup-wrapper{display:flex;justify-content:center;gap:30px;flex-wrap:wrap;max-width:800px;width:100%}.mockup-wrapper *{box-sizing:border-box;letter-spacing:-.02em;margin:0;padding:0}.phone-screen{width:350px;height:750px;background-color:${bCol};color:${tCol};border-radius:45px;box-shadow:0 25px 60px rgba(0,0,0,.15),inset 0 0 0 8px #fff;padding:60px 20px 30px 20px;display:flex;flex-direction:column;position:relative;overflow:hidden}.status-bar{position:absolute;top:18px;left:30px;right:30px;display:flex;justify-content:space-between;align-items:center;z-index:10;font-size:12px;font-weight:700;pointer-events:none}.status-battery{font-size:10px;font-weight:400;opacity:.8}.playlist-header{font-size:1.2em;font-weight:800;text-align:center;margin-bottom:25px;text-transform:uppercase;letter-spacing:.05em}.song-list{list-style:none;overflow-y:auto;flex:1;padding-bottom:20px}.song-list::-webkit-scrollbar{display:none}.song-item{display:flex;align-items:center;padding:12px 10px;margin-bottom:5px;cursor:pointer;transition:.2s;border-radius:16px}.song-item.active,.song-item:hover{background:rgba(0,0,0,.05)}.song-thumb{width:48px;height:48px;border-radius:50%;background-color:#ddd;background-size:cover;background-position:center;margin-right:15px;flex-shrink:0;box-shadow:0 4px 10px rgba(0,0,0,.1)}.song-info{flex:1;overflow:hidden}.song-title{font-size:1.05em;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}.song-artist{font-size:.85em;font-weight:400;opacity:.5}.more-icon{opacity:.3;margin-left:10px}.detail-top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding:0 10px}.back-btn{font-weight:800;font-size:1.2em;cursor:pointer}.now-playing-title{font-size:.9em;font-weight:600;opacity:.5;text-transform:uppercase}.lyrics-section{flex:none;height:240px;width:100%;position:relative;border-radius:20px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;overflow:hidden;background-size:cover;background-position:center;background-color:#333;padding:20px;box-shadow:0 15px 35px rgba(0,0,0,.1)}.lyrics-overlay{position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:0}.lyric-line{position:relative;z-index:1;font-size:1.05em;font-weight:500;color:rgba(255,255,255,.4);margin:7px 0;transition:all .4s ease;word-break:keep-all}.lyric-line.active-lyric{color:#fff;font-weight:800;transform:scale(1.1);text-shadow:0 0 15px rgba(255,255,255,.3)}.player-controls{margin-top:25px;display:flex;flex-direction:column;gap:15px;padding:0 10px}.track-info-left{text-align:left}#d-t{font-size:1.3em;font-weight:800;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#d-a{font-size:.95em;font-weight:400;opacity:.5}.progress-row{display:flex;align-items:center;gap:10px}.time-text{font-size:.75em;font-weight:500;opacity:.5;font-variant-numeric:tabular-nums}.progress-bar-bg{flex:1;height:5px;background:rgba(0,0,0,.1);border-radius:3px;overflow:hidden}.progress-fill{width:35%;height:100%;background-color:${tCol};border-radius:3px}.control-buttons{display:flex;justify-content:center;align-items:center;gap:35px;margin-top:5px}.control-icon{width:30px;height:30px;fill:${tCol};cursor:pointer}.play-pause-icon{width:40px;height:40px}.desc-section{flex:1;overflow-y:auto;font-size:.9em;font-weight:300;background:rgba(0,0,0,.03);padding:20px;border-radius:20px;line-height:1.6;text-align:center;margin-top:20px;word-break:keep-all}.desc-section::-webkit-scrollbar{width:5px}.desc-section::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:10px}</style></head><body><div class="mockup-wrapper"><div class="phone-screen"><div class="status-bar"><span>9:41</span><span class="status-battery">📶 100% 🔋</span></div><div class="playlist-header">${title}</div><ul class="song-list" id="p-c"></ul></div><div class="phone-screen"><div class="status-bar"><span>9:41</span><span class="status-battery">📶 100% 🔋</span></div><div class="detail-top-bar"><div class="back-btn">〈</div><div class="now-playing-title">Now Playing</div><div class="more-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div></div><div class="lyrics-section" id="l-c"><div class="lyrics-overlay"></div><div id="lyrics-lines-wrapper" style="position:relative; z-index:1;"></div></div><div class="player-controls"><div class="track-info-left"><div id="d-t"></div><div id="d-a"></div></div><div class="progress-row"><span class="time-text">1:24</span><div class="progress-bar-bg"><div class="progress-fill"></div></div><span class="time-text">-2:31</span></div><div class="control-buttons"><svg class="control-icon" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg><svg class="control-icon play-pause-icon" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg><svg class="control-icon" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></div></div><div class="desc-section" id="d-c"></div></div></div><script>const sD=${JSON.stringify(songData)};let lT=null;function init(){const c=document.getElementById('p-c');sD.forEach((s,i)=>{const li=document.createElement('li');li.className='song-item';const bg=s.image?"background-image:url('"+s.image+"');":"";li.innerHTML='<div class="song-thumb" style="'+bg+'"></div><div class="song-info"><div class="song-title">'+s.title+'</div><div class="song-artist">'+s.artist+'</div></div><div class="more-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div>';li.onclick=()=>sel(i,li);c.appendChild(li)});if(sD.length>0)sel(0,c.firstChild)}function sel(i,e){document.querySelectorAll('.song-item').forEach(m=>m.classList.remove('active'));e.classList.add('active');const s=sD[i];document.getElementById('d-t').innerText=s.title;document.getElementById('d-a').innerText=s.artist;document.getElementById('d-c').innerText=s.description;const lc=document.getElementById('l-c');const lw=document.getElementById('lyrics-lines-wrapper');if(s.image)lc.style.backgroundImage="url('"+s.image+"')";else{lc.style.backgroundColor="#333";lc.style.backgroundImage="none"}lw.innerHTML='';s.lyrics.forEach(l=>{const d=document.createElement('div');d.className='lyric-line';d.innerText=l;lw.appendChild(d)});ani(lw)}function ani(c){clearInterval(lT);const n=c.querySelectorAll('.lyric-line');if(n.length===0)return;let x=0;n[0].classList.add('active-lyric');lT=setInterval(()=>{n[x].classList.remove('active-lyric');x=(x+1)%n.length;n[x].classList.add('active-lyric')},2000)}window.onload=init;<\/script></body></html>`;
+    // 1. 필요한 CSS 부분 (export 접미사가 붙은 클래스들)
+    const styleTags = document.querySelectorAll('style');
+    let exportCSS = "";
+    styleTags.forEach(tag => {
+        // 프리텐다드 폰트 임포트와 export 관련 CSS만 추출
+        if(tag.innerHTML.includes('@import') || tag.innerHTML.includes('-export')) {
+             exportCSS += tag.innerHTML;
+        }
+    });
 
-    // 💡 textarea를 이용한 강제 복사 기법 (보안 정책 회피)
+    // 2. 화면에 렌더링된 듀얼 모크업 DOM 전체
+    const wrapperHTML = document.getElementById('player-wrapper').outerHTML;
+    
+    // 3. 자바스크립트(가사 애니메이션, 클릭 등) (티스토리용으로 포장)
+    const scriptLogic = `
+    const sD=${JSON.stringify(songData)};
+    let lT=null;
+    function initExport(){
+        const items = document.querySelectorAll('.song-item-export');
+        items.forEach((item, i) => {
+            item.onclick = () => selExp(i, item);
+        });
+        if(sD.length>0) selExp(0, items[0]);
+    }
+    function selExp(i, e){
+        document.querySelectorAll('.song-item-export').forEach(m=>m.classList.remove('active-export'));
+        e.classList.add('active-export');
+        const s = sD[i];
+        document.getElementById('detail-title').innerText = s.title;
+        document.getElementById('detail-artist').innerText = s.artist;
+        document.getElementById('desc-container').innerText = s.description;
+        
+        const lc = document.getElementById('lyrics-container');
+        const lw = document.getElementById('lyrics-lines-wrapper');
+        
+        if (s.image) lc.style.backgroundImage = "url('" + s.image + "')";
+        else { lc.style.backgroundColor = "#333"; lc.style.backgroundImage = "none"; }
+        
+        lw.innerHTML = '';
+        s.lyrics.forEach(l => {
+            const d = document.createElement('div');
+            d.className = 'lyric-line-export';
+            d.innerText = l;
+            lw.appendChild(d);
+        });
+        aniExp(lw);
+    }
+    function aniExp(c){
+        clearInterval(lT);
+        const n = c.querySelectorAll('.lyric-line-export');
+        if (n.length === 0) return;
+        let x = 0; n[0].classList.add('active-lyric-export');
+        lT = setInterval(()=>{
+            n[x].classList.remove('active-lyric-export');
+            x = (x + 1) % n.length;
+            n[x].classList.add('active-lyric-export');
+        }, 2000);
+    }
+    // 스크립트 실행
+    setTimeout(initExport, 500);
+    `;
+
+    // 4. 최종 조립
+    const finalCode = `
+<style>${exportCSS}</style>
+${wrapperHTML}
+<script>${scriptLogic}<\/script>
+    `;
+
+    // 5. 텍스트 에어리어를 이용한 완벽 복사 실행
     const textArea = document.getElementById("hidden-copy-area");
-    textArea.value = template;
+    textArea.value = finalCode.trim();
     textArea.select();
-    textArea.setSelectionRange(0, 99999); // 모바일 대응
+    textArea.setSelectionRange(0, 99999);
 
     try {
       document.execCommand('copy');
-      alert("✅ HTML 코드가 클립보드에 복사되었습니다. 티스토리에 iframe으로 붙여넣으세요.");
+      alert("✅ HTML 코드가 복사되었습니다!");
     } catch (err) {
-      alert("❌ 복사에 실패했습니다. 브라우저 설정을 확인해주세요.");
+      alert("❌ 복사에 실패했습니다.");
     }
   }
 </script>
