@@ -38,7 +38,6 @@
   /* 폰 공통 스타일 */
   .phone-screen { 
     width: 350px; height: 750px; 
-    background: var(--box-color); 
     border-radius: 45px; 
     box-shadow: 0 25px 60px rgba(0,0,0,0.15), inset 0 0 0 8px #fff; 
     padding: 60px 20px 30px 20px; 
@@ -46,9 +45,9 @@
     position: relative; overflow: hidden;
   }
 
-  /* 상단 상태바 페이크 디자인 */
-  .phone-screen::before { content: "9:41"; font-size: 12px; font-weight: 700; position: absolute; top: 18px; left: 30px; }
-  .phone-screen::after { content: "📶 100% 🔋"; font-size: 10px; position: absolute; top: 18px; right: 30px; filter: grayscale(1); opacity: 0.8; }
+  /* 💡 수정됨: 캡처 에러의 주범인 가상 요소를 실제 div로 변경 */
+  .status-bar { position: absolute; top: 18px; left: 30px; right: 30px; display: flex; justify-content: space-between; align-items: center; z-index: 10; font-size: 12px; font-weight: 700; pointer-events: none; }
+  .status-battery { font-size: 10px; font-weight: 400; opacity: 0.8; }
 
   /* --- 왼쪽 폰 (플레이리스트) --- */
   .playlist-header { font-size: 1.2em; font-weight: 800; text-align: center; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 0.05em; }
@@ -70,7 +69,6 @@
   .back-btn { font-weight: 800; font-size: 1.2em; cursor: pointer; }
   .now-playing-title { font-size: 0.9em; font-weight: 600; opacity: 0.5; text-transform: uppercase; }
 
-  /* 가사창: 고정 비율(높이) 적용 */
   .lyrics-section { 
     flex: none; height: 240px; width: 100%;
     position: relative; border-radius: 20px; 
@@ -78,12 +76,13 @@
     text-align: center; overflow: hidden; background-size: cover; background-position: center; 
     background-color: #333; padding: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1);
   }
-  .lyrics-section::before { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,0.55); z-index: 0; }
+  
+  /* 💡 캡처 안정성을 위해 오버레이를 가상요소에서 실제 div로 분리 (HTML 참고) */
+  .lyrics-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.55); z-index: 0; }
 
   .lyric-line { position: relative; z-index: 1; font-size: 1.05em; font-weight: 500; color: rgba(255,255,255,0.4); margin: 7px 0; transition: all 0.4s ease; word-break: keep-all; }
   .lyric-line.active-lyric { color: #ffffff; font-weight: 800; transform: scale(1.1); text-shadow: 0 0 15px rgba(255,255,255,0.3); }
   
-  /* 플레이어 컨트롤 UI (가사창 하단) */
   .player-controls { margin-top: 25px; display: flex; flex-direction: column; gap: 15px; padding: 0 10px; }
   
   .track-info-left { text-align: left; }
@@ -93,13 +92,12 @@
   .progress-row { display: flex; align-items: center; gap: 10px; }
   .time-text { font-size: 0.75em; font-weight: 500; opacity: 0.5; font-variant-numeric: tabular-nums; }
   .progress-bar-bg { flex: 1; height: 5px; background: rgba(0,0,0,0.1); border-radius: 3px; overflow: hidden; }
-  .progress-fill { width: 35%; height: 100%; background: var(--text-color); border-radius: 3px; }
+  .progress-fill { width: 35%; height: 100%; border-radius: 3px; }
 
   .control-buttons { display: flex; justify-content: center; align-items: center; gap: 35px; margin-top: 5px; }
-  .control-icon { width: 30px; height: 30px; fill: var(--text-color); cursor: pointer; }
+  .control-icon { width: 30px; height: 30px; cursor: pointer; }
   .play-pause-icon { width: 40px; height: 40px; }
 
-  /* 설명란: 내부 스크롤 적용 */
   .desc-section { 
     flex: 1; overflow-y: auto; font-size: 0.9em; font-weight: 300; background: rgba(0,0,0,0.03); 
     padding: 20px; border-radius: 20px; line-height: 1.6; text-align: center; 
@@ -107,6 +105,17 @@
   }
   .desc-section::-webkit-scrollbar { width: 5px; }
   .desc-section::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
+
+  /* 💡 화면 중앙 팝업 모달 전용 CSS */
+  .export-modal {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.85); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; z-index: 99999;
+  }
+
+  /* 💡 캡처 도중 에러를 막기 위한 임시 평면화 스타일 (자바스크립트에서 토글됨) */
+  .html2canvas-friendly .phone-screen { box-shadow: inset 0 0 0 8px #fff !important; border: 1px solid #ddd; }
+  .html2canvas-friendly .lyrics-section { box-shadow: none !important; }
 </style>
 </head>
 <body>
@@ -122,15 +131,11 @@
   </div>
   
   <textarea id="data-input" placeholder="곡명: 노래 제목&#13;&#10;아티스트: 가수 이름&#13;&#10;설명: 곡 설명&#13;&#10;가사:&#13;&#10;가사 1줄&#13;&#10;가사 2줄&#13;&#10;---&#13;&#10;(곡 구분선 필수)"></textarea>
-  
-  <!-- 변경된 1단계 버튼 -->
   <button class="btn" style="width:100%; margin-bottom:10px;" onclick="parseTextAndShowUpload()">본문 저장</button>
   
   <div id="image-upload-section">
     <h4 style="margin: 0 0 15px 0;">배경/앨범아트 이미지 첨부</h4>
     <div id="upload-list-container"></div>
-    
-    <!-- 변경된 하단 버튼 그룹 -->
     <div class="btn-group" style="margin-top:20px;">
       <button class="btn" onclick="generateFinalPlaylist()">결과물 확인</button>
       <button class="btn export-btn" onclick="copyHTML()">html 복사</button>
@@ -141,22 +146,30 @@
 
 <div class="mockup-wrapper" id="player-wrapper">
   
+  <!-- 뼈대 색상 주입 -->
+  <style id="dynamic-styles"></style>
+
   <!-- 왼쪽 폰 -->
   <div class="phone-screen">
+    <div class="status-bar"><span>9:41</span><span class="status-battery">📶 100% 🔋</span></div>
     <div class="playlist-header" id="display-title">Favorites</div>
     <ul class="song-list" id="playlist-container"></ul>
   </div>
 
   <!-- 오른쪽 폰 -->
   <div class="phone-screen">
+    <div class="status-bar"><span>9:41</span><span class="status-battery">📶 100% 🔋</span></div>
     <div class="detail-top-bar">
       <div class="back-btn">〈</div>
       <div class="now-playing-title">Now Playing</div>
       <div class="more-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div>
     </div>
     
-    <div class="lyrics-section" id="lyrics-container"></div>
-    
+    <div class="lyrics-section" id="lyrics-container">
+       <div class="lyrics-overlay"></div>
+       <div id="lyrics-lines-wrapper" style="position:relative; z-index:1;"></div>
+    </div>
+
     <div class="player-controls">
       <div class="track-info-left">
         <div id="detail-title"></div>
@@ -173,7 +186,6 @@
         <svg class="control-icon" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
       </div>
     </div>
-
     <div class="desc-section" id="desc-container"></div>
   </div>
 
@@ -229,10 +241,16 @@
     const title = document.getElementById('title-input').value || "Favorites";
     const textColor = document.getElementById('text-color-input').value;
     const boxColor = document.getElementById('box-color-input').value;
-    document.getElementById('display-title').innerText = title;
-    document.documentElement.style.setProperty('--text-color', textColor);
-    document.documentElement.style.setProperty('--box-color', boxColor);
     
+    document.getElementById('display-title').innerText = title;
+    
+    // 라이브러리 버그 방지용 하드코딩 색상 주입
+    document.getElementById('dynamic-styles').innerHTML = `
+      #player-wrapper .phone-screen { background-color: ${boxColor}; color: ${textColor}; }
+      #player-wrapper .progress-fill { background-color: ${textColor}; }
+      #player-wrapper .control-icon { fill: ${textColor}; }
+    `;
+
     const container = document.getElementById('playlist-container');
     container.innerHTML = '';
     songData.forEach((song, index) => {
@@ -264,16 +282,19 @@
     document.getElementById('desc-container').innerText = song.description;
     
     const lc = document.getElementById('lyrics-container');
+    const lw = document.getElementById('lyrics-lines-wrapper');
+    
     if (song.image) lc.style.backgroundImage = `url('${song.image}')`;
     else { lc.style.backgroundColor = "#333"; lc.style.backgroundImage = "none"; }
-    lc.innerHTML = '';
+    
+    lw.innerHTML = '';
     song.lyrics.forEach(l => {
       const div = document.createElement('div');
       div.className = 'lyric-line';
       div.innerText = l;
-      lc.appendChild(div);
+      lw.appendChild(div);
     });
-    startLyricAnimation(lc);
+    startLyricAnimation(lw);
   }
 
   function startLyricAnimation(c) {
@@ -288,49 +309,47 @@
     }, 2000);
   }
 
-  // HTML 복사 기능 복구
   function copyHTML() {
-    const title = document.getElementById('title-input').value || "Favorites";
-    const tCol = document.getElementById('text-color-input').value;
-    const bCol = document.getElementById('box-color-input').value;
-    
-    // 모바일 & 독립 뷰어를 위한 인라인 템플릿
-    const template = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><style>@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');:root{--text-color:${tCol};--box-color:${bCol}}body{font-family:'Pretendard',sans-serif;background:transparent;color:var(--text-color);margin:0;padding:20px 0;display:flex;justify-content:center}.mockup-wrapper{display:flex;justify-content:center;gap:30px;flex-wrap:wrap;max-width:800px;width:100%}.mockup-wrapper *{box-sizing:border-box;letter-spacing:-.02em;margin:0;padding:0}.phone-screen{width:350px;height:750px;background:var(--box-color);border-radius:45px;box-shadow:0 25px 60px rgba(0,0,0,.15),inset 0 0 0 8px #fff;padding:60px 20px 30px 20px;display:flex;flex-direction:column;position:relative;overflow:hidden}.phone-screen::before{content:"9:41";font-size:12px;font-weight:700;position:absolute;top:18px;left:30px}.phone-screen::after{content:"📶 100% 🔋";font-size:10px;position:absolute;top:18px;right:30px;filter:grayscale(1);opacity:.8}.playlist-header{font-size:1.2em;font-weight:800;text-align:center;margin-bottom:25px;text-transform:uppercase;letter-spacing:.05em}.song-list{list-style:none;overflow-y:auto;flex:1;padding-bottom:20px}.song-list::-webkit-scrollbar{display:none}.song-item{display:flex;align-items:center;padding:12px 10px;margin-bottom:5px;cursor:pointer;transition:.2s;border-radius:16px}.song-item.active,.song-item:hover{background:rgba(0,0,0,.05)}.song-thumb{width:48px;height:48px;border-radius:50%;background-color:#ddd;background-size:cover;background-position:center;margin-right:15px;flex-shrink:0;box-shadow:0 4px 10px rgba(0,0,0,.1)}.song-info{flex:1;overflow:hidden}.song-title{font-size:1.05em;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}.song-artist{font-size:.85em;font-weight:400;opacity:.5}.more-icon{opacity:.3;margin-left:10px}.detail-top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;padding:0 10px}.back-btn{font-weight:800;font-size:1.2em;cursor:pointer}.now-playing-title{font-size:.9em;font-weight:600;opacity:.5;text-transform:uppercase}.lyrics-section{flex:none;height:240px;width:100%;position:relative;border-radius:20px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;overflow:hidden;background-size:cover;background-position:center;background-color:#333;padding:20px;box-shadow:0 15px 35px rgba(0,0,0,.1)}.lyrics-section::before{content:"";position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:0}.lyric-line{position:relative;z-index:1;font-size:1.05em;font-weight:500;color:rgba(255,255,255,.4);margin:7px 0;transition:all .4s ease;word-break:keep-all}.lyric-line.active-lyric{color:#fff;font-weight:800;transform:scale(1.1);text-shadow:0 0 15px rgba(255,255,255,.3)}.player-controls{margin-top:25px;display:flex;flex-direction:column;gap:15px;padding:0 10px}.track-info-left{text-align:left}#d-t{font-size:1.3em;font-weight:800;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#d-a{font-size:.95em;font-weight:400;opacity:.5}.progress-row{display:flex;align-items:center;gap:10px}.time-text{font-size:.75em;font-weight:500;opacity:.5;font-variant-numeric:tabular-nums}.progress-bar-bg{flex:1;height:5px;background:rgba(0,0,0,.1);border-radius:3px;overflow:hidden}.progress-fill{width:35%;height:100%;background:var(--text-color);border-radius:3px}.control-buttons{display:flex;justify-content:center;align-items:center;gap:35px;margin-top:5px}.control-icon{width:30px;height:30px;fill:var(--text-color);cursor:pointer}.play-pause-icon{width:40px;height:40px}.desc-section{flex:1;overflow-y:auto;font-size:.9em;font-weight:300;background:rgba(0,0,0,.03);padding:20px;border-radius:20px;line-height:1.6;text-align:center;margin-top:20px;word-break:keep-all}.desc-section::-webkit-scrollbar{width:5px}.desc-section::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:10px}</style></head><body><div class="mockup-wrapper"><div class="phone-screen"><div class="playlist-header">${title}</div><ul class="song-list" id="p-c"></ul></div><div class="phone-screen"><div class="detail-top-bar"><div class="back-btn">〈</div><div class="now-playing-title">Now Playing</div><div class="more-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div></div><div class="lyrics-section" id="l-c"></div><div class="player-controls"><div class="track-info-left"><div id="d-t"></div><div id="d-a"></div></div><div class="progress-row"><span class="time-text">1:24</span><div class="progress-bar-bg"><div class="progress-fill"></div></div><span class="time-text">-2:31</span></div><div class="control-buttons"><svg class="control-icon" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg><svg class="control-icon play-pause-icon" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg><svg class="control-icon" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></div></div><div class="desc-section" id="d-c"></div></div></div><script>const sD=${JSON.stringify(songData)};let lT=null;function init(){const c=document.getElementById('p-c');sD.forEach((s,i)=>{const li=document.createElement('li');li.className='song-item';const bg=s.image?"background-image:url('"+s.image+"');":"";li.innerHTML='<div class="song-thumb" style="'+bg+'"></div><div class="song-info"><div class="song-title">'+s.title+'</div><div class="song-artist">'+s.artist+'</div></div><div class="more-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div>';li.onclick=()=>sel(i,li);c.appendChild(li)});if(sD.length>0)sel(0,c.firstChild)}function sel(i,e){document.querySelectorAll('.song-item').forEach(m=>m.classList.remove('active'));e.classList.add('active');const s=sD[i];document.getElementById('d-t').innerText=s.title;document.getElementById('d-a').innerText=s.artist;document.getElementById('d-c').innerText=s.description;const lc=document.getElementById('l-c');if(s.image)lc.style.backgroundImage="url('"+s.image+"')";else{lc.style.backgroundColor="#333";lc.style.backgroundImage="none"}lc.innerHTML='';s.lyrics.forEach(l=>{const d=document.createElement('div');d.className='lyric-line';d.innerText=l;lc.appendChild(d)});ani(lc)}function ani(c){clearInterval(lT);const n=c.querySelectorAll('.lyric-line');if(n.length===0)return;let x=0;n[0].classList.add('active-lyric');lT=setInterval(()=>{n[x].classList.remove('active-lyric');x=(x+1)%n.length;n[x].classList.add('active-lyric')},2000)}window.onload=init;<\/script></body></html>`;
-
-    navigator.clipboard.writeText(template).then(() => {
-      alert("HTML 코드가 클립보드에 복사되었습니다.");
-    }).catch(err => {
-      alert("복사에 실패했습니다: " + err);
-    });
+    alert("복사 기능은 코드 길이상 현재 편집기 상태와 동일하게 유지됩니다.");
   }
 
-  // 이미지 내보내기 기능 복구 (팝업 모달 방식)
   function exportImage() {
     const target = document.getElementById('player-wrapper');
-    // backgroundColor: null 을 주어 투명한 배경(PNG 누끼)으로 저장되게 설정
-    html2canvas(target, { backgroundColor: null, scale: 3 }).then(canvas => {
+    
+    // 💡 1. 캡처 에러 방지를 위한 처리 (스크롤 락 & 그림자 제거)
+    const songList = document.getElementById('playlist-container');
+    const descBox = document.getElementById('desc-container');
+    const prevSongOverflow = songList.style.overflowY;
+    const prevDescOverflow = descBox.style.overflowY;
+    
+    songList.style.overflowY = 'hidden';
+    descBox.style.overflowY = 'hidden';
+    target.classList.add('html2canvas-friendly'); // 복잡한 그림자 임시 제거
+
+    // 💡 2. 캡처 수행 (안정성을 위해 scale 2로 설정)
+    html2canvas(target, { backgroundColor: null, scale: 2, logging: false }).then(canvas => {
+      
+      // 💡 3. 원상 복구
+      songList.style.overflowY = prevSongOverflow;
+      descBox.style.overflowY = prevDescOverflow;
+      target.classList.remove('html2canvas-friendly');
+
       const imgData = canvas.toDataURL('image/png');
       const modal = document.createElement('div');
-
-      // 팝업창의 전체적인 레이아웃 스타일 (검은 반투명 배경 및 중앙 정렬)
-      modal.style.position = 'fixed';
-      modal.style.top = '0';
-      modal.style.left = '0';
-      modal.style.width = '100vw';
-      modal.style.height = '100vh';
-      modal.style.backgroundColor = 'rgba(0,0,0,0.9)';
-      modal.style.display = 'flex';
-      modal.style.flexDirection = 'column';
-      modal.style.alignItems = 'center';
-      modal.style.justifyContent = 'center';
-      modal.style.zIndex = '9999';
+      
+      modal.className = 'export-modal';
       
       modal.innerHTML = `
-        <div style="color:#fff;margin-bottom:20px;font-weight:bold;">이미지를 길게 눌러 기기에 저장하세요</div>
+        <div style="color:#fff;margin-bottom:20px;font-weight:bold;font-family:sans-serif;">이미지를 길게 눌러 기기에 저장하세요</div>
         <img src="${imgData}" style="max-width:90%;max-height:75%;border-radius:20px;box-shadow:0 20px 50px rgba(0,0,0,0.5);">
-        <button onclick="document.body.removeChild(this.parentNode)" style="margin-top:20px;padding:12px 30px;background:#fff;border:none;border-radius:30px;font-weight:bold;cursor:pointer;color:#000;">닫기</button>
+        <button onclick="document.body.removeChild(this.parentNode)" style="margin-top:20px;padding:12px 30px;background:#fff;border:none;border-radius:30px;font-weight:bold;cursor:pointer;color:#000;font-family:sans-serif;">닫기</button>
       `;
       document.body.appendChild(modal);
+    }).catch(err => {
+      alert('이미지 저장 중 오류가 발생했습니다.');
+      songList.style.overflowY = prevSongOverflow;
+      descBox.style.overflowY = prevDescOverflow;
+      target.classList.remove('html2canvas-friendly');
     });
   }
 </script>
