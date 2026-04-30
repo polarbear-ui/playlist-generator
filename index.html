@@ -292,7 +292,7 @@
     }, 2000);
   }
 
-  // 외부 HTML 뷰어에서 100% 작동하는 완벽한 독립 HTML 코드 생성
+  // 외부 환경에서도 절대 고장나지 않는 완벽한 독립 HTML 생성
   function copyHTML() {
     const title = document.getElementById('title-input').value || "Favorites";
     const tCol = document.getElementById('text-color-input').value;
@@ -394,37 +394,47 @@
   const songData = ${JSON.stringify(songData)};
   let lyricTimer = null;
 
-  function init() {
+  function initPlaylist() {
     const container = document.getElementById('playlist-container');
     songData.forEach((song, index) => {
       const li = document.createElement('li');
       li.className = 'song-item';
       const bgStyle = song.image ? "background-image: url('" + song.image + "');" : "";
-      li.innerHTML = \`<div class="song-thumb" style="\${bgStyle}"></div>
-        <div class="song-info">
-          <div class="song-title">\${song.title}</div>
-          <div class="song-artist">\${song.artist}</div>
-        </div>
-        <div class="more-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div>\`;
-      li.onclick = () => selectSong(index, li);
+      
+      // 💡 에러 방지를 위해 백틱 파싱 대신 원시적인 문자열 더하기 방식 사용
+      li.innerHTML = '<div class="song-thumb" style="' + bgStyle + '"></div>' +
+        '<div class="song-info">' +
+          '<div class="song-title">' + song.title + '</div>' +
+          '<div class="song-artist">' + song.artist + '</div>' +
+        '</div>' +
+        '<div class="more-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div>';
+      
+      li.onclick = function() { selectSong(index, li); };
       container.appendChild(li);
     });
-    if(songData.length > 0) selectSong(0, container.firstChild);
+    if(songData.length > 0) {
+      selectSong(0, container.firstChild);
+    }
   }
 
   function selectSong(index, element) {
-    document.querySelectorAll('.song-item').forEach(item => item.classList.remove('active'));
+    const items = document.querySelectorAll('.song-item');
+    for(let i=0; i<items.length; i++) { items[i].classList.remove('active'); }
     element.classList.add('active');
-    const song = songData[index];
     
+    const song = songData[index];
     document.getElementById('detail-title').innerText = song.title;
     document.getElementById('detail-artist').innerText = song.artist;
     document.getElementById('desc-container').innerText = song.description;
     
     const lc = document.getElementById('lyrics-container');
     const lw = document.getElementById('lyrics-lines-wrapper');
-    if (song.image) lc.style.backgroundImage = "url('" + song.image + "')";
-    else { lc.style.backgroundColor = "#333"; lc.style.backgroundImage = "none"; }
+    if (song.image) {
+      lc.style.backgroundImage = "url('" + song.image + "')";
+    } else { 
+      lc.style.backgroundColor = "#333"; 
+      lc.style.backgroundImage = "none"; 
+    }
     
     lw.innerHTML = '';
     song.lyrics.forEach(l => {
@@ -440,7 +450,8 @@
     clearInterval(lyricTimer);
     const n = c.querySelectorAll('.lyric-line');
     if (n.length === 0) return;
-    let x = 0; n[0].classList.add('active-lyric');
+    let x = 0; 
+    n[0].classList.add('active-lyric');
     lyricTimer = setInterval(() => {
       n[x].classList.remove('active-lyric');
       x = (x + 1) % n.length;
@@ -448,7 +459,8 @@
     }, 2000);
   }
 
-  window.onload = init;
+  // 💡 window.onload 대신 외부 뷰어에서도 즉시 100% 실행되도록 함수 바로 호출
+  initPlaylist();
 <\/script>
 </body>
 </html>`;
@@ -465,9 +477,9 @@
     outputTextArea.setSelectionRange(0, 99999);
     try {
       document.execCommand('copy');
-      alert("✅ HTML 코드가 클립보드에 복사되었습니다!");
+      alert("✅ 복사 완료!");
     } catch (err) {
-      alert("⚠️ 브라우저 설정 때문에 자동 복사에 실패했습니다. 아래 박스 안의 코드를 직접 복사해주세요.");
+      alert("⚠️ 아래 박스 안의 코드를 직접 복사해주세요.");
     }
   }
 </script>
