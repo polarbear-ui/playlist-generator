@@ -124,7 +124,7 @@
   <textarea id="data-input" placeholder="곡명: 노래 제목&#13;&#10;아티스트: 가수 이름&#13;&#10;설명: 곡 설명&#13;&#10;가사:&#13;&#10;가사 1줄&#13;&#10;가사 2줄&#13;&#10;---&#13;&#10;(곡 구분선 필수)"></textarea>
   
   <!-- 변경된 1단계 버튼 -->
-  <button class="btn" style="width:100%; margin-bottom:10px;" onclick="parseTextAndShowUpload()">본문 편집</button>
+  <button class="btn" style="width:100%; margin-bottom:10px;" onclick="parseTextAndShowUpload()">본문 저장</button>
   
   <div id="image-upload-section">
     <h4 style="margin: 0 0 15px 0;">배경/앨범아트 이미지 첨부</h4>
@@ -307,10 +307,10 @@
   // 이미지 내보내기 기능 복구 (팝업 모달 방식)
   function exportImage() {
     const target = document.getElementById('player-wrapper');
-    html2canvas(target, { backgroundColor: '#e2e5ea', scale: 3 }).then(canvas => {
+    // backgroundColor: null 을 주어 투명한 배경(PNG 누끼)으로 저장되게 설정
+    html2canvas(target, { backgroundColor: null, scale: 3 }).then(canvas => {
       const imgData = canvas.toDataURL('image/png');
       const modal = document.createElement('div');
-      modal.style = "position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.9);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;";
       modal.innerHTML = `
         <div style="color:#fff;margin-bottom:20px;font-weight:bold;">이미지를 길게 눌러 기기에 저장하세요</div>
         <img src="${imgData}" style="max-width:90%;max-height:75%;border-radius:20px;box-shadow:0 20px 50px rgba(0,0,0,0.5);">
