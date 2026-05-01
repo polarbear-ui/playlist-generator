@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>듀얼스크린 플레이리스트 제너레이터 (오리지널 디자인 완벽 복원)</title>
+<title>플레이리스트 제너레이터</title>
 <!-- 안 깨지는 이미지 저장을 위한 라이브러리 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
 <style>
@@ -22,12 +22,11 @@
 
   textarea { width: 100%; height: 180px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; resize: vertical; margin-bottom: 10px; line-height: 1.5; font-family: inherit; }
 
-  .btn { background: #222; color: #fff; border: none; padding: 14px 20px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.2s; }
+  .btn { box-sizing: border-box; background: #222; color: #fff; border: none; padding: 14px 20px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.2s; }
   .btn:hover { background: #444; }
   .btn.blue { background: #007AFF; }
   .btn.gray { background: #666; }
   .btn.green { background: #28a745; }
-  .btn { box-sizing: border-box; background: #222; color: #fff; border: none; padding: 14px 20px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.2s; }
   
   #image-upload-section { display: none; margin-top: 20px; border-top: 2px solid #f4f4f4; padding-top: 20px; }
   .upload-item { display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 10px 15px; border-radius: 12px; margin-bottom: 10px; font-size: 0.9em; font-weight: 500; }
@@ -51,6 +50,9 @@
     padding: 60px 20px 30px 20px; 
     display: flex; flex-direction: column;
     position: relative; overflow: hidden;
+    /* 💡 수정된 부분: 글자색 상속을 강제하고 삐져나감을 방지 */
+    color: var(--text-color); 
+    box-sizing: border-box;
   }
 
   .status-bar { position: absolute; top: 18px; left: 30px; right: 30px; display: flex; justify-content: space-between; align-items: center; z-index: 10; font-size: 12px; font-weight: 700; pointer-events: none; }
@@ -125,6 +127,7 @@
     .status-bar { display: none; } 
     #capture-area { padding: 30px 10px; }
   }
+
   /* 모바일 색상 선택기 픽스 (확인 버튼 증발 방지) */
   .color-picker-wrap { display: flex; gap: 20px; }
   .color-box { display: flex; align-items: center; gap: 8px; }
@@ -133,13 +136,7 @@
   .color-box input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
   .color-box input[type="color"]::-webkit-color-swatch { border: 1px solid #ccc; border-radius: 6px; }
 
-  /* 모바일 캡처 시 강제 듀얼 레이아웃(PC화면) 유지 픽스 */
-  .is-capturing #capture-area { width: 850px !important; max-width: none !important; padding: 60px 40px !important; }
-  .is-capturing .mockup-wrapper { flex-wrap: nowrap !important; }
-  .is-capturing .phone-screen { width: 350px !important; max-width: 350px !important; min-height: 750px !important; border-radius: 45px !important; }
-  .is-capturing .status-bar { display: flex !important; }
-
-/* 💡 캡처 시 모바일에서도 강제로 PC(가로 듀얼) 레이아웃 고정 */
+  /* 💡 캡처 시 모바일에서도 강제로 PC(가로 듀얼) 레이아웃 고정 */
   .is-capturing #capture-area { 
     display: flex !important; 
     width: 850px !important; 
@@ -168,11 +165,13 @@
   <div class="config-row">
     <label>타이틀</label><input type="text" id="title-in" value="Favorites">
   </div>
-  <div class="config-row">
-    <div class="config-row color-picker-wrap">
+  
+  <!-- 💡 수정된 부분: 꼬여있던 div 태그를 깔끔하게 닫고 정리했습니다 -->
+  <div class="config-row color-picker-wrap">
     <div class="color-box"><label>글자색</label><input type="color" id="t-color" value="#222222"></div>
     <div class="color-box"><label>배경색</label><input type="color" id="b-color" value="#f8f9fa"></div>
   </div>
+
   <textarea id="data-in" placeholder="곡명: 노래 제목&#13;&#10;아티스트: 가수 이름&#13;&#10;설명: 곡 설명&#13;&#10;가사:&#13;&#10;가사 한줄씩 입력&#13;&#10;---"></textarea>
   <button class="btn" style="width:100%" onclick="initStep1()">본문 저장</button>
 
@@ -399,6 +398,7 @@
       console.error(error);
     }
   }
+
   // 💡 백업용 독립 웹페이지 파일 생성 및 다운로드 기능
   function exportToStandaloneHTML() {
     if(songs.length === 0) return alert("데이터를 먼저 입력해주세요.");
@@ -421,7 +421,10 @@
   
   .mockup-wrapper { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; width: 100%; max-width: 1000px; margin: 0 auto; }
   .mockup-wrapper * { box-sizing: border-box; letter-spacing: -0.02em; margin: 0; padding: 0; }
-  .phone-screen { width: 350px; height: 750px; background: var(--box-color); border-radius: 45px; box-shadow: 0 25px 60px rgba(0,0,0,0.15), inset 0 0 0 8px #fff; padding: 60px 20px 30px 20px; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+  
+  /* 💡 백업 파일에도 글자색 상속(color)을 강제 적용해 두었습니다 */
+  .phone-screen { width: 350px; height: 750px; background: var(--box-color); border-radius: 45px; box-shadow: 0 25px 60px rgba(0,0,0,0.15), inset 0 0 0 8px #fff; padding: 60px 20px 30px 20px; display: flex; flex-direction: column; position: relative; overflow: hidden; color: var(--text-color); box-sizing: border-box; }
+  
   .status-bar { position: absolute; top: 18px; left: 30px; right: 30px; display: flex; justify-content: space-between; align-items: center; z-index: 10; font-size: 12px; font-weight: 700; pointer-events: none; }
   .status-battery { font-size: 10px; font-weight: 400; opacity: 0.8; }
   .playlist-header { font-size: 1.2em; font-weight: 800; text-align: center; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 0.05em; flex-shrink: 0; }
